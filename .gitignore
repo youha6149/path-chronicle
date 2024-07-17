@@ -3,4 +3,4 @@ csv
 *.csv
 __pycache__
 .pytest_cache
-paths.py
+paths.pydist

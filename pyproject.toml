@@ -8,6 +8,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 
+[tool.poetry.scripts]
+create-dir = 'path_chronicle.manage_paths:create_dir_entry'
+create-file = 'path_chronicle.manage_paths:create_file_entry'
 
 [build-system]
 requires = ["poetry-core"]

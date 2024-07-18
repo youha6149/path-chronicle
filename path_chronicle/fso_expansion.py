@@ -4,7 +4,7 @@ import argparse
 import sys
 from collections.abc import Callable
 
-class PathManager:
+class FsoExpansion:
     def __init__(self, csv_file: str):
         self.script_dir = Path(__file__).parent
         print(f"Script directory: {self.script_dir}")
@@ -70,7 +70,7 @@ class PathManager:
 
     def create_file(self, name: str, parent_dir: str, is_save_to_csv: bool=True) -> Path:
         return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), is_save_to_csv)
-    
+
 def _common_parser(description: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('name', help='Name of the directory or file to create')
@@ -89,7 +89,7 @@ def create_dir_entry():
         parser = _common_parser('Create a directory.')
         args = parser.parse_args()
 
-        pm = PathManager(args.csv)
+        pm = FsoExpansion(args.csv)
         is_save_to_csv = not args.no_save
         pm.create_dir(args.name, args.parent_dir, is_save_to_csv)
 
@@ -106,7 +106,7 @@ def create_file_entry():
         parser = _common_parser('Create a file.')
         args = parser.parse_args()
 
-        pm = PathManager(args.csv)
+        pm = FsoExpansion(args.csv)
         is_save_to_csv = not args.no_save
         pm.create_file(args.name, args.parent_dir, is_save_to_csv)
 

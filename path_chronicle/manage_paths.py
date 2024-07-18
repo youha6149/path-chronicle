@@ -68,33 +68,46 @@ class PathManager:
         return self._create_path(name, parent_dir, lambda p: p.mkdir(parents=True, exist_ok=True), is_save_to_csv)
 
     def create_file(self, name, parent_dir, is_save_to_csv=True):
-        return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), is_save_to_csv)   
+        return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), is_save_to_csv)
+    
+def _common_parser(description):
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('name', help='Name of the directory or file to create')
+    parser.add_argument('parent_dir', help='Parent directory where the directory or file will be created')
+    parser.add_argument('--csv', default='paths.csv', help='Name of the CSV file for storing paths')
+    parser.add_argument('--no-save', action='store_true', help='Do not save the path to the CSV file')
+    return parser
 
-def main():
+def create_dir_entry():
     """
-    example:
-        poetry run python ./path_chronicle/manage_paths.py create_dir my_temp_directory ./
+    ex:
+        poetry run create-dir my_temp_directory ./
     """
-
+    
     try:
-        parser = argparse.ArgumentParser(description='Manage project paths and files.')
-        parser.add_argument('action', choices=['create_dir', 'create_file'], help='Action to perform')
-        parser.add_argument('name', help='Name of the directory or file to create')
-        parser.add_argument('parent_dir', help='Parent directory where the directory or file will be created')
-        parser.add_argument('--csv', default='paths.csv', help='Name of the CSV file for storing paths')
-        parser.add_argument('--no-save', action='store_true', help='Do not save the path to the CSV file')
-
+        parser = _common_parser('Create a directory.')
         args = parser.parse_args()
 
         pm = PathManager(args.csv)
         is_save_to_csv = not args.no_save
+        pm.create_dir(args.name, args.parent_dir, is_save_to_csv)
 
-        if args.action == 'create_dir':
-            pm.create_dir(args.name, args.parent_dir, is_save_to_csv)
-        elif args.action == 'create_file':
-            pm.create_file(args.name, args.parent_dir, is_save_to_csv)
     except Exception as e:
-        print(f"Error in main function: {e}", file=sys.stderr)
+        print(f"Error in create_dir_entry function: {e}", file=sys.stderr)
 
-if __name__ == "__main__":
-    main()
+def create_file_entry():
+    """
+    ex:
+        poetry run create-file another_file.txt my_temp_directory
+    """
+
+    try:
+        parser = _common_parser('Create a file.')
+        args = parser.parse_args()
+
+        pm = PathManager(args.csv)
+        is_save_to_csv = not args.no_save
+        pm.create_file(args.name, args.parent_dir, is_save_to_csv)
+
+    except Exception as e:
+        print(f"Error in create_file_entry function: {e}", file=sys.stderr)

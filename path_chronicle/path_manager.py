@@ -2,9 +2,10 @@ import csv
 from pathlib import Path
 import argparse
 import sys
+from collections.abc import Callable
 
 class PathManager:
-    def __init__(self, csv_file):
+    def __init__(self, csv_file: str):
         self.script_dir = Path(__file__).parent
         print(f"Script directory: {self.script_dir}")
 
@@ -17,7 +18,7 @@ class PathManager:
         
         self.paths = self._load_paths()
 
-    def _load_paths(self):
+    def _load_paths(self) -> dict[str, str]:
         paths = {}
         if not self.csv_file.exists() or self.csv_file.stat().st_size == 0:
             print(f"CSV file does not exist or is empty. Returning empty paths dictionary.")
@@ -34,7 +35,7 @@ class PathManager:
 
         return paths
 
-    def _save_paths(self):
+    def _save_paths(self) -> None:
         try:
             with open(self.csv_file, mode='w', newline='') as file:
                 fieldnames = ['name', 'path']
@@ -48,7 +49,7 @@ class PathManager:
         except Exception as e:
             print(f"Error saving paths: {e}", file=sys.stderr)
 
-    def _create_path(self, name, parent_dir, create_function, is_save_to_csv=True):
+    def _create_path(self, name: str, parent_dir: str, create_function: Callable[[Path], None], is_save_to_csv: bool=True) -> Path:
         try:
             parent_path = Path(parent_dir)
             new_path = parent_path / name
@@ -64,13 +65,13 @@ class PathManager:
         except Exception as e:
             print(f"Error creating path: {e}", file=sys.stderr)
 
-    def create_dir(self, name, parent_dir, is_save_to_csv=True):
+    def create_dir(self, name: str, parent_dir: str, is_save_to_csv: bool=True) -> Path:
         return self._create_path(name, parent_dir, lambda p: p.mkdir(parents=True, exist_ok=True), is_save_to_csv)
 
-    def create_file(self, name, parent_dir, is_save_to_csv=True):
+    def create_file(self, name: str, parent_dir: str, is_save_to_csv: bool=True) -> Path:
         return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), is_save_to_csv)
     
-def _common_parser(description):
+def _common_parser(description: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('name', help='Name of the directory or file to create')
     parser.add_argument('parent_dir', help='Parent directory where the directory or file will be created')

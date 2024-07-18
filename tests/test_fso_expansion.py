@@ -2,7 +2,7 @@ import pytest
 import csv
 import os
 
-from path_chronicle.path_manager import PathManager
+from path_chronicle.fso_expansion import FsoExpansion
 
 @pytest.fixture
 def setup_csv(tmp_path):
@@ -23,7 +23,7 @@ def setup_env(tmp_path):
     os.chdir(original_dir)
 
 def test_load_paths_empty_csv(setup_csv, setup_env):
-    pm = PathManager(str(setup_csv))
+    pm = FsoExpansion(str(setup_csv))
     assert pm.paths == {}, "Paths dictionary should be empty for an empty CSV."
 
 def test_load_paths_with_data(setup_csv, setup_env):
@@ -31,11 +31,11 @@ def test_load_paths_with_data(setup_csv, setup_env):
         writer = csv.writer(file)
         writer.writerow(['test_name', 'test_path'])
 
-    pm = PathManager(str(setup_csv))
+    pm = FsoExpansion(str(setup_csv))
     assert pm.paths['test_name'] == 'test_path', "Paths dictionary should contain the data from the CSV."
 
 def test_create_dir(setup_csv, setup_env):
-    pm = PathManager(str(setup_csv))
+    pm = FsoExpansion(str(setup_csv))
     new_dir = pm.create_dir("test_dir", str(setup_env))
     
     assert new_dir.exists() and new_dir.is_dir(), "Directory should be created."
@@ -48,7 +48,7 @@ def test_create_dir(setup_csv, setup_env):
         assert rows[0]['path'] == str(new_dir), "CSV should contain the correct path."
 
 def test_create_file(setup_csv, setup_env):
-    pm = PathManager(str(setup_csv))
+    pm = FsoExpansion(str(setup_csv))
     new_file = pm.create_file("test_file.txt", str(setup_env))
     
     assert new_file.exists() and new_file.is_file(), "File should be created."
@@ -61,7 +61,7 @@ def test_create_file(setup_csv, setup_env):
         assert rows[0]['path'] == str(new_file), "CSV should contain the correct path."
 
 def test_create_dir_no_save(setup_csv, setup_env):
-    pm = PathManager(str(setup_csv))
+    pm = FsoExpansion(str(setup_csv))
     new_dir = pm.create_dir("test_dir_nosave", str(setup_env), is_save_to_csv=False)
     
     assert new_dir.exists() and new_dir.is_dir(), "Directory should be created."
@@ -73,7 +73,7 @@ def test_create_dir_no_save(setup_csv, setup_env):
         assert len(rows) == 0, "CSV should remain empty."
 
 def test_create_file_no_save(setup_csv, setup_env):
-    pm = PathManager(str(setup_csv))
+    pm = FsoExpansion(str(setup_csv))
     new_file = pm.create_file("test_file_nosave.txt", str(setup_env), is_save_to_csv=False)
     
     assert new_file.exists() and new_file.is_file(), "File should be created."

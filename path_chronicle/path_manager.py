@@ -81,7 +81,7 @@ def _common_parser(description):
 def create_dir_entry():
     """
     ex:
-        poetry run create-dir my_temp_directory ./
+        poetry run pcmkdir my_temp_directory ./
     """
     
     try:
@@ -98,7 +98,7 @@ def create_dir_entry():
 def create_file_entry():
     """
     ex:
-        poetry run create-file another_file.txt my_temp_directory
+        poetry run pctouch another_file.txt my_temp_directory
     """
 
     try:

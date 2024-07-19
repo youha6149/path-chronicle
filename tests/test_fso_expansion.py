@@ -1,6 +1,8 @@
 import pytest
 import csv
 import os
+from io import StringIO
+from contextlib import redirect_stdout
 
 from path_chronicle.fso_expansion import FsoExpansion
 
@@ -84,3 +86,27 @@ def test_create_file_no_save(setup_csv, setup_env):
         rows = list(reader)
         assert len(rows) == 0, "CSV should remain empty."
 
+def test_list_paths_empty(setup_csv, setup_env):
+    pm = FsoExpansion(str(setup_csv))
+    f = StringIO()
+    with redirect_stdout(f):
+        pm.list_paths()
+    output = f.getvalue()
+    assert "No paths saved in CSV." in output, "Should indicate no paths are saved."
+
+def test_list_paths_with_data(setup_csv, setup_env):
+    with open(setup_csv, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['test_name', 'test_path'])
+
+    pm = FsoExpansion(str(setup_csv))
+    f = StringIO()
+    with redirect_stdout(f):
+        pm.list_paths()
+    output = f.getvalue()
+    expected_output = (
+        "Name      | Path     \n"
+        "----------+----------\n"
+        "test_name | test_path\n"
+    )
+    assert expected_output in output, f"Output should match expected table format:\n{output}"

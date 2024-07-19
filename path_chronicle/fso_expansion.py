@@ -53,7 +53,7 @@ class FsoExpansion:
             if is_save_to_csv:
                 self._print_csv_path()
                 new_id = max([p['id'] for p in self.paths], default=0) + 1
-                self.paths.append({'id': new_id, 'name': name, 'path': str(new_path), 'description': description})
+                self.paths.append({'id': new_id, 'name': name.replace(".", "_"), 'path': str(new_path), 'description': description})
                 self._save_paths()
 
             return new_path

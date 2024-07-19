@@ -121,13 +121,34 @@ def test_list_paths_with_data(setup_csv, setup_env):
     )
     assert output == expected_output, f"Output should match expected table format:\n{output}"
 
-def test_remove_path_by_id(setup_csv, setup_env):
-    test_dir = setup_env / 'test_path'
+def test_remove_dir_with_subfiles(setup_csv, setup_env):
+    test_dir = setup_env / 'test_dir'
     test_dir.mkdir(parents=True, exist_ok=True)
+    sub_file = test_dir / 'sub_file.txt'
+    sub_file.touch()
 
     with open(setup_csv, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['1', 'test_name', test_dir, 'test_description'])
+        writer.writerow(['1', 'test_dir', str(test_dir), 'test directory'])
+        writer.writerow(['2', 'sub_file', str(sub_file), 'sub file'])
+
+    pm = FsoExpansion(str(setup_csv))
+    pm.remove_path(path=str(test_dir))
+    
+    assert len(pm.paths) == 0, "Paths list should be empty after removing the directory with subfiles."
+    
+    with open(pm.csv_file, mode='r') as file:
+        reader = csv.DictReader(file)
+        rows = list(reader)
+        assert len(rows) == 0, "CSV should be empty after removing the directory with subfiles."
+
+def test_remove_path_by_id(setup_csv, setup_env):
+    test_dir = setup_env / 'test_path'
+    test_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリを作成
+
+    with open(setup_csv, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['1', 'test_name', str(test_dir), 'test_description'])
 
     pm = FsoExpansion(str(setup_csv))
     pm.remove_path(id=1)
@@ -137,16 +158,15 @@ def test_remove_path_by_id(setup_csv, setup_env):
     with open(pm.csv_file, mode='r') as file:
         reader = csv.DictReader(file)
         rows = list(reader)
-
         assert len(rows) == 0, "CSV should be empty after removing the path by ID."
 
 def test_remove_path_by_name(setup_csv, setup_env):
     test_dir = setup_env / 'test_path'
-    test_dir.mkdir(parents=True, exist_ok=True)
+    test_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリを作成
 
     with open(setup_csv, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['1', 'test_name', test_dir, 'test_description'])
+        writer.writerow(['1', 'test_name', str(test_dir), 'test_description'])
 
     pm = FsoExpansion(str(setup_csv))
     pm.remove_path(name='test_name')
@@ -160,11 +180,11 @@ def test_remove_path_by_name(setup_csv, setup_env):
 
 def test_remove_path_by_path(setup_csv, setup_env):
     test_dir = setup_env / 'test_path'
-    test_dir.mkdir(parents=True, exist_ok=True)
+    test_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリを作成
 
     with open(setup_csv, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['1', 'test_name', test_dir, 'test_description'])
+        writer.writerow(['1', 'test_name', str(test_dir), 'test_description'])
 
     pm = FsoExpansion(str(setup_csv))
     pm.remove_path(path=str(test_dir))

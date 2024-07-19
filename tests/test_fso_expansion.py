@@ -1,4 +1,5 @@
 import csv
+import pdb
 from contextlib import redirect_stdout
 from io import StringIO
 import os
@@ -119,3 +120,76 @@ def test_list_paths_with_data(setup_csv, setup_env):
         "\n"
     )
     assert output == expected_output, f"Output should match expected table format:\n{output}"
+
+def test_remove_path_by_id(setup_csv, setup_env):
+    test_dir = setup_env / 'test_path'
+    test_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(setup_csv, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['1', 'test_name', test_dir, 'test_description'])
+
+    pm = FsoExpansion(str(setup_csv))
+    pm.remove_path(id=1)
+    
+    assert len(pm.paths) == 0, "Paths list should be empty after removing the path by ID."
+    
+    with open(pm.csv_file, mode='r') as file:
+        reader = csv.DictReader(file)
+        rows = list(reader)
+
+        assert len(rows) == 0, "CSV should be empty after removing the path by ID."
+
+def test_remove_path_by_name(setup_csv, setup_env):
+    test_dir = setup_env / 'test_path'
+    test_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(setup_csv, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['1', 'test_name', test_dir, 'test_description'])
+
+    pm = FsoExpansion(str(setup_csv))
+    pm.remove_path(name='test_name')
+    
+    assert len(pm.paths) == 0, "Paths list should be empty after removing the path by name."
+    
+    with open(pm.csv_file, mode='r') as file:
+        reader = csv.DictReader(file)
+        rows = list(reader)
+        assert len(rows) == 0, "CSV should be empty after removing the path by name."
+
+def test_remove_path_by_path(setup_csv, setup_env):
+    test_dir = setup_env / 'test_path'
+    test_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(setup_csv, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['1', 'test_name', test_dir, 'test_description'])
+
+    pm = FsoExpansion(str(setup_csv))
+    pm.remove_path(path=str(test_dir))
+    
+    assert len(pm.paths) == 0, "Paths list should be empty after removing the path by path."
+    
+    with open(pm.csv_file, mode='r') as file:
+        reader = csv.DictReader(file)
+        rows = list(reader)
+        assert len(rows) == 0, "CSV should be empty after removing the path by path."
+
+def test_remove_nonexistent_path(setup_csv, setup_env):
+    pm = FsoExpansion(str(setup_csv))
+    f = StringIO()
+    with redirect_stdout(f):
+        pm.remove_path(id=999)
+    output = f.getvalue()
+    assert "No path found with id: 999" in output, "Should indicate no path found with given ID."
+
+    with redirect_stdout(f):
+        pm.remove_path(name='nonexistent_name')
+    output = f.getvalue()
+    assert "No path found with name: nonexistent_name" in output, "Should indicate no path found with given name."
+
+    with redirect_stdout(f):
+        pm.remove_path(path='/nonexistent/path')
+    output = f.getvalue()
+    assert "No path found with path: /nonexistent/path" in output, "Should indicate no path found with given path."

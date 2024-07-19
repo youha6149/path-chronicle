@@ -14,7 +14,7 @@ class FsoExpansion:
         print(f"CSV directory: {self.csv_dir}")
 
         self.csv_file = self.csv_dir / csv_file
-        print(f"CSV file path: {self.csv_file}")
+        print(f"CSV file path: {self.csv_file}\n")
         
         self.paths = self._load_paths()
 
@@ -70,6 +70,25 @@ class FsoExpansion:
 
     def create_file(self, name: str, parent_dir: str, is_save_to_csv: bool=True) -> Path:
         return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), is_save_to_csv)
+    
+    def list_paths(self) -> None:
+        if not self.paths:
+            print("No paths saved in CSV.")
+        else:
+            self._print_table(["Name", "Path"], self.paths.items())
+
+    def _print_table(self, headers, rows) -> None:
+        col_widths = [len(header) for header in headers]
+        for row in rows:
+            for i, cell in enumerate(row):
+                col_widths[i] = max(col_widths[i], len(cell))
+
+        header_row = " | ".join(f"{header:{col_widths[i]}}" for i, header in enumerate(headers))
+        print(header_row)
+        print("-+-".join('-' * width for width in col_widths))
+
+        for row in rows:
+            print(" | ".join(f"{cell:{col_widths[i]}}" for i, cell in enumerate(row)))
 
 def _common_parser(description: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description)
@@ -112,3 +131,19 @@ def create_file_entry():
 
     except Exception as e:
         print(f"Error in create_file_entry function: {e}", file=sys.stderr)
+
+def list_paths_entry():
+    """
+    ex:
+        poetry run pcpathslist
+    """
+    try:
+        parser = argparse.ArgumentParser(description='List all paths stored in the CSV file.')
+        parser.add_argument('--csv', default='paths.csv', help='Name of the CSV file for storing paths')
+        args = parser.parse_args()
+
+        pm = FsoExpansion(args.csv)
+        pm.list_paths()
+
+    except Exception as e:
+        print(f"Error in list_paths_entry function: {e}", file=sys.stderr)

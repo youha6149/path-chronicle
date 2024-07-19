@@ -2,7 +2,7 @@ import argparse
 import sys
 
 from path_chronicle.fso_expansion import FsoExpansion
-from path_chronicle.generate_paths import generate_paths
+
 
 def _common_parser(description: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description)
@@ -89,19 +89,3 @@ def remove_path_entry():
 
     except Exception as e:
         print(f"Error in remove_path_entry function: {e}", file=sys.stderr)
-
-def generate_paths_entry():
-    """
-    ex: poetry run gpaths
-    """
-    try:
-        parser = argparse.ArgumentParser(description='Generate a Python file with paths for various project directories and files.')
-        parser.add_argument('--csv', default='paths.csv', help='Path to the CSV file containing paths')
-        parser.add_argument('--output', default='paths.py', help='Path to the output Python file')
-
-        args = parser.parse_args()
-
-        generate_paths(csv_file=args.csv, output_file=args.output)
-
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}", file=sys.stderr)

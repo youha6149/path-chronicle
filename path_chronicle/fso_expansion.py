@@ -66,6 +66,60 @@ class FsoExpansion:
         except Exception as e:
             print(f"Error creating path: {e}", file=sys.stderr)
 
+    def remove_path(self, id: int = None, name: str = None, path: str = None) -> None:
+        try:
+            target_path = None
+
+            if id is not None:
+                for p in self.paths:
+                    if p['id'] == id:
+                        target_path = p['path']
+                        break
+                
+                if target_path is None:
+                    print(f"No path found with id: {id}")
+                    return
+
+            if name is not None and target_path is None:
+                for p in self.paths:
+                    if p['name'] == name:
+                        target_path = p['path']
+                        break
+                
+                if target_path is None:
+                    print(f"No path found with name: {name}")
+                    return
+
+            if path is not None and target_path is None:
+                target_path = path
+                if not any(p['path'] == path for p in self.paths):
+                    print(f"No path found with path: {path}")
+                    return
+
+            if target_path:
+                path_obj = Path(target_path)
+                if path_obj.exists():
+                    if path_obj.is_dir():
+                        for item in path_obj.glob('**/*'):
+                            if item.is_file():
+                                item.unlink()
+                            else:
+                                item.rmdir()
+                        path_obj.rmdir()
+                    else:
+                        path_obj.unlink()
+                    print(f"Path deleted: {target_path}")
+
+                    self.paths = [p for p in self.paths if p['path'] != target_path]
+                    self._save_paths()
+                else:
+                    print(f"Path does not exist: {target_path}")
+            else:
+                print("No valid identifier provided to delete path.")
+
+        except Exception as e:
+            print(f"Error deleting path: {e}", file=sys.stderr)
+
     def create_dir(self, name: str, parent_dir: str, description: str = '', is_save_to_csv: bool=True) -> Path:
         return self._create_path(name, parent_dir, description, lambda p: p.mkdir(parents=True, exist_ok=True), is_save_to_csv)
 
@@ -142,6 +196,7 @@ def list_paths_entry():
     ex:
         poetry run pcpathslist
     """
+
     try:
         parser = argparse.ArgumentParser(description='List all paths stored in the CSV file.')
         parser.add_argument('--csv', default='paths.csv', help='Name of the CSV file for storing paths')
@@ -152,3 +207,29 @@ def list_paths_entry():
 
     except Exception as e:
         print(f"Error in list_paths_entry function: {e}", file=sys.stderr)
+
+def remove_path_entry():
+    """
+    ex:
+        poetry run pcrmpath --id 1
+        poetry run pcrmpath --name example_name
+        poetry run pcrmpath --path /example/path/to/delete
+    """
+    
+    try:
+        parser = argparse.ArgumentParser(description='Remove a path based on id, name, or path.')
+        parser.add_argument('--id', type=int, help='ID of the path to remove')
+        parser.add_argument('--name', help='Name of the path to remove')
+        parser.add_argument('--path', help='Path to remove')
+        parser.add_argument('--csv', default='paths.csv', help='Name of the CSV file for storing paths')
+        args = parser.parse_args()
+
+        if args.id is None and args.name is None and args.path is None:
+            print("Error: At least one of --id, --name, or --path must be provided.")
+            return
+
+        pm = FsoExpansion(args.csv)
+        pm.remove_path(id=args.id, name=args.name, path=args.path)
+
+    except Exception as e:
+        print(f"Error in remove_path_entry function: {e}", file=sys.stderr)

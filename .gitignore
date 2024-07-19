@@ -2,3 +2,4 @@ dist
 csv
 *.csv
 __pycache__
+.pytest_cache

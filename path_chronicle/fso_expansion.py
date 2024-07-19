@@ -7,15 +7,9 @@ import sys
 class FsoExpansion:
     def __init__(self, csv_file: str):
         self.script_dir = Path(__file__).parent
-        print(f"Script directory: {self.script_dir}")
-
         self.csv_dir = self.script_dir / 'csv'
         self.csv_dir.mkdir(exist_ok=True)
-        print(f"CSV directory: {self.csv_dir}")
-
         self.csv_file = self.csv_dir / csv_file
-        print(f"CSV file path: {self.csv_file}\n")
-        
         self.paths = self._load_paths()
 
     def _load_paths(self) -> list[dict]:
@@ -57,6 +51,7 @@ class FsoExpansion:
             print(f"Path created at {new_path}")
 
             if is_save_to_csv:
+                self._print_csv_path()
                 new_id = max([p['id'] for p in self.paths], default=0) + 1
                 self.paths.append({'id': new_id, 'name': name, 'path': str(new_path), 'description': description})
                 self._save_paths()
@@ -132,6 +127,10 @@ class FsoExpansion:
         else:
             self._print_table(["ID", "Name", "Path", "Description"], 
                               [(str(p['id']), p['name'], p['path'], p['description']) for p in self.paths])
+
+    def _print_csv_path(self) -> None:
+        print(f"CSV directory: {self.csv_dir}")
+        print(f"CSV file path: {self.csv_file}\n")
 
     def _print_table(self, headers, rows) -> None:
         col_widths = [len(header) for header in headers]

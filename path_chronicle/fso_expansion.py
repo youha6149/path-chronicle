@@ -86,14 +86,16 @@ class FsoExpansion:
                     return
 
             if path is not None and target_path is None:
-                target_path = path
-                if not any(p['path'] == path for p in self.paths):
-                    print(f"No path found with path: {path}")
+                target_path = str(path)
+                if not any(p['path'] == target_path for p in self.paths):
+                    print(f"No path found with path: {target_path}")
                     return
 
             if target_path:
                 path_obj = Path(target_path)
                 if path_obj.exists():
+                    self.paths = [p for p in self.paths if not Path(p['path']).resolve().is_relative_to(path_obj.resolve())]
+                    
                     if path_obj.is_dir():
                         for item in path_obj.glob('**/*'):
                             if item.is_file():
@@ -105,7 +107,6 @@ class FsoExpansion:
                         path_obj.unlink()
                     print(f"Path deleted: {target_path}")
 
-                    self.paths = [p for p in self.paths if p['path'] != target_path]
                     self._save_paths()
                 else:
                     print(f"Path does not exist: {target_path}")

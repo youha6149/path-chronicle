@@ -4,6 +4,7 @@ import sys
 from path_chronicle.fso_expansion import FsoExpansion
 from path_chronicle.generate_paths import generate_paths
 
+
 def _common_parser(description: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('name', help='Name of the directory or file to create')

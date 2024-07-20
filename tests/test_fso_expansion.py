@@ -59,15 +59,17 @@ def test_create_file(setup_csv, setup_env):
     pm = FsoExpansion(str(setup_csv))
     new_file = pm.create_file("test_file.txt", str(setup_env), "Test file description")
     
+    rn_filename = "test_file.txt".replace(".", "_")
+
     assert new_file.exists() and new_file.is_file(), "File should be created."
-    assert pm.paths[-1]['name'] == "test_file.txt", "Path name should be saved in the paths list."
+    assert pm.paths[-1]['name'] == rn_filename, "Path name should be saved in the paths list."
     assert pm.paths[-1]['path'] == str(new_file), "Path should be saved in the paths list."
     assert pm.paths[-1]['description'] == "Test file description", "Description should be saved in the paths list."
 
     with open(pm.csv_file, mode='r') as file:
         reader = csv.DictReader(file)
         rows = list(reader)
-        assert rows[0]['name'] == "test_file.txt", "CSV should contain the file name."
+        assert rows[0]['name'] == rn_filename, "CSV should contain the file name."
         assert rows[0]['path'] == str(new_file), "CSV should contain the correct path."
         assert rows[0]['description'] == "Test file description", "CSV should contain the correct description."
 

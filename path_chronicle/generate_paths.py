@@ -1,5 +1,4 @@
 import csv
-from pathlib import Path
 
 from path_chronicle.utils import get_package_root
 

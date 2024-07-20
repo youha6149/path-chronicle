@@ -1,5 +1,4 @@
 import csv
-import pdb
 from contextlib import redirect_stdout
 from io import StringIO
 import os
@@ -146,7 +145,7 @@ def test_remove_dir_with_subfiles(setup_csv, setup_env):
 
 def test_remove_path_by_id(setup_csv, setup_env):
     test_dir = setup_env / 'test_path'
-    test_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリを作成
+    test_dir.mkdir(parents=True, exist_ok=True)
 
     with open(setup_csv, mode='a', newline='') as file:
         writer = csv.writer(file)
@@ -164,7 +163,7 @@ def test_remove_path_by_id(setup_csv, setup_env):
 
 def test_remove_path_by_name(setup_csv, setup_env):
     test_dir = setup_env / 'test_path'
-    test_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリを作成
+    test_dir.mkdir(parents=True, exist_ok=True)
 
     with open(setup_csv, mode='a', newline='') as file:
         writer = csv.writer(file)
@@ -182,7 +181,7 @@ def test_remove_path_by_name(setup_csv, setup_env):
 
 def test_remove_path_by_path(setup_csv, setup_env):
     test_dir = setup_env / 'test_path'
-    test_dir.mkdir(parents=True, exist_ok=True)  # ディレクトリを作成
+    test_dir.mkdir(parents=True, exist_ok=True)
 
     with open(setup_csv, mode='a', newline='') as file:
         writer = csv.writer(file)

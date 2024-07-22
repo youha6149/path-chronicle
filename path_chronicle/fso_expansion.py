@@ -1,14 +1,14 @@
-import csv
-from collections.abc import Callable
 from pathlib import Path
+import csv
 import sys
+from collections.abc import Callable
 
 
 class FsoExpansion:
     def __init__(self, csv_file: str = "paths.csv", csv_dir_name: str = "csv", csv_root_dir: str = None):
         self.script_dir = Path(__file__).parent
-        self.csv_dir = self.script_dir / 'csv'
-        self.csv_dir.mkdir(exist_ok=True)
+        self.csv_dir = Path(csv_root_dir) / csv_dir_name if csv_root_dir else self.script_dir / csv_dir_name
+        self.csv_dir.mkdir(parents=True, exist_ok=True)
         self.csv_file = self.csv_dir / csv_file
         self.paths = self._load_paths()
 

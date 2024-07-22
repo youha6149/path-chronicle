@@ -43,31 +43,27 @@ class PathManager:
         except Exception as e:
             print(f"Error saving paths: {e}", file=sys.stderr)
 
-    def create_dir(self, name, parent_dir, save_to_csv=True):
+    def _create_path(self, name, parent_dir, create_function, save_to_csv=True):
         try:
             parent_path = Path(parent_dir)
-            new_dir = parent_path / name
-            new_dir.mkdir(parents=True, exist_ok=True)
-            print(f"Directory created at {new_dir}")
+            new_path = parent_path / name
+            create_function(new_path)
+            print(f"Path created at {new_path}")
+
             if save_to_csv:
-                self.paths[name] = str(new_dir)
+                self.paths[name] = str(new_path)
                 self._save_paths()
-            return new_dir
+
+            return new_path
+
         except Exception as e:
-            print(f"Error creating directory: {e}", file=sys.stderr)
+            print(f"Error creating path: {e}", file=sys.stderr)
+
+    def create_dir(self, name, parent_dir, save_to_csv=True):
+        return self._create_path(name, parent_dir, lambda p: p.mkdir(parents=True, exist_ok=True), save_to_csv)
 
     def create_file(self, name, parent_dir, save_to_csv=True):
-        try:
-            parent_path = Path(parent_dir)
-            new_file = parent_path / name
-            new_file.touch(exist_ok=True)
-            print(f"File created at {new_file}")
-            if save_to_csv:
-                self.paths[name] = str(new_file)
-                self._save_paths()
-            return new_file
-        except Exception as e:
-            print(f"Error creating file: {e}", file=sys.stderr)
+        return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), save_to_csv)
 
 def main():
     try:

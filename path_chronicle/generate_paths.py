@@ -5,8 +5,8 @@ from path_chronicle.utils import get_package_root
 
 
 def generate_paths(
-    csv_file: str = "paths.csv",
-    output_file: str = "paths.py",
+    csv_name: str = "paths.csv",
+    module_name: str = "paths.py",
     csv_dir_name: str = "csv",
     module_dir_name: str = "path_module",
     csv_root_dir: str = None,
@@ -15,14 +15,14 @@ def generate_paths(
     """インテリセンスを表示することのできるパス管理関数"""
 
     csv_dir = Path(csv_root_dir) / csv_dir_name if csv_root_dir else get_package_root() / csv_dir_name
-    csv_path = csv_dir / csv_file
+    csv_path = csv_dir / csv_name
 
     if not csv_path.exists():
         raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
     module_dir = Path(module_root_dir) / module_dir_name if module_root_dir else get_package_root() / module_dir_name
     module_dir.mkdir(parents=True, exist_ok=True)
-    module_path = module_dir / output_file
+    module_path = module_dir / module_name
 
     with open(str(csv_path), mode='r') as file:
         reader = csv.DictReader(file)

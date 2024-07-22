@@ -7,11 +7,14 @@ class PathManager:
     def __init__(self, csv_file):
         self.script_dir = Path(__file__).parent
         print(f"Script directory: {self.script_dir}")
+
         self.csv_dir = self.script_dir / 'csv'
         self.csv_dir.mkdir(exist_ok=True)
         print(f"CSV directory: {self.csv_dir}")
+
         self.csv_file = self.csv_dir / csv_file
         print(f"CSV file path: {self.csv_file}")
+
         self.paths = self._load_paths()
 
     def _load_paths(self):
@@ -39,7 +42,9 @@ class PathManager:
                 writer.writeheader()
                 for name, path in self.paths.items():
                     writer.writerow({'name': name, 'path': path})
+
             print(f"Paths saved to CSV file at {self.csv_file}")
+
         except Exception as e:
             print(f"Error saving paths: {e}", file=sys.stderr)
 
@@ -66,6 +71,11 @@ class PathManager:
         return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), is_save_to_csv)
 
 def main():
+    """
+    example:
+        poetry run python ./path_chronicle/manage_paths.py create_dir my_temp_directory ./
+    """
+
     try:
         parser = argparse.ArgumentParser(description='Manage project paths and files.')
         parser.add_argument('action', choices=['create_dir', 'create_file'], help='Action to perform')

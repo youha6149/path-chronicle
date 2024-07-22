@@ -1,4 +1,3 @@
-import argparse
 import csv
 from pathlib import Path
 
@@ -15,7 +14,7 @@ def generate_paths(csv_file: str="paths.csv", output_file: str="paths.py"):
     with open(str(csv_path), mode='r') as file:
         reader = csv.DictReader(file)
         paths = {row['name']: row['path'] for row in reader}
-    
+
     lines = [
         "from pathlib import Path\n",
         "\n",
@@ -34,7 +33,7 @@ def generate_paths(csv_file: str="paths.csv", output_file: str="paths.py"):
     lines.append("        \"\"\"\n")
     lines.append("        Returns the Path object for the given name.\n\n")
     lines.append("        Available paths:\n")
-    
+
     for name, path in paths.items():
         lines.append(f"        - {name}: {path}\n")
 

@@ -16,16 +16,19 @@ class PathManager:
 
     def load_paths(self):
         paths = {}
-        if not self.csv_file.exists():
-            print(f"CSV file does not exist. Creating new CSV file at {self.csv_file}")
-            self.paths = paths
-            self.save_paths()
-        else:
+        if not self.csv_file.exists() or self.csv_file.stat().st_size == 0:
+            print(f"CSV file does not exist or is empty. Returning empty paths dictionary.")
+            return paths
+
+        try:
             with open(self.csv_file, mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     paths[row['name']] = row['path']
-            self.paths = paths
+
+        except Exception as e:
+            print(f"Error reading CSV file: {e}", file=sys.stderr)
+
         return paths
 
     def save_paths(self):

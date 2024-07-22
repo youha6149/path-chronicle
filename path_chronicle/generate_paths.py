@@ -1,11 +1,18 @@
+import argparse
 import csv
 from pathlib import Path
-import argparse
+
+from path_chronicle.utils import get_package_root
+
 
 def generate_paths(csv_file="paths.csv", output_file="paths.py"):
     """インテリセンスを表示することのできるパス管理関数"""
     
-    with open(Path(__file__).parent / csv_file, mode='r') as file:
+    package_root = get_package_root()
+    csv_path = package_root / "csv" / csv_file
+    output_file_path = package_root / output_file
+    
+    with open(str(csv_path), mode='r') as file:
         reader = csv.DictReader(file)
         paths = {row['name']: row['path'] for row in reader}
     
@@ -34,7 +41,7 @@ def generate_paths(csv_file="paths.csv", output_file="paths.py"):
     lines.append("        \"\"\"\n")
     lines.append("        return getattr(Paths, name, None)\n")
     
-    with open(output_file, mode='w') as file:
+    with open(str(output_file_path), mode='w') as file:
         file.writelines(lines)
 
 def main():

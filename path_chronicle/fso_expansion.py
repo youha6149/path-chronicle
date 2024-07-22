@@ -3,7 +3,6 @@ import csv
 import sys
 from collections.abc import Callable
 
-
 class FsoExpansion:
     def __init__(self, csv_name: str = "paths.csv", csv_dir_name: str = "csv", csv_root_dir: str = None):
         self.script_dir = Path(__file__).parent
@@ -43,7 +42,7 @@ class FsoExpansion:
         except Exception as e:
             print(f"Error saving paths: {e}", file=sys.stderr)
 
-    def _create_path(self, name: str, parent_dir: str, description: str, create_function: Callable[[Path], None], is_save_to_csv: bool=True) -> Path:
+    def _create_path(self, name: str, parent_dir: str, description: str, create_function: Callable[[Path], None], is_save_to_csv: bool = True) -> Path:
         try:
             parent_path = Path(parent_dir)
             new_path = parent_path / name
@@ -70,7 +69,7 @@ class FsoExpansion:
                     if p['id'] == id:
                         target_path = p['path']
                         break
-                
+
                 if target_path is None:
                     print(f"No path found with id: {id}")
                     return
@@ -80,7 +79,7 @@ class FsoExpansion:
                     if p['name'] == name:
                         target_path = p['path']
                         break
-                
+
                 if target_path is None:
                     print(f"No path found with name: {name}")
                     return
@@ -95,7 +94,7 @@ class FsoExpansion:
                 path_obj = Path(target_path)
                 if path_obj.exists():
                     self.paths = [p for p in self.paths if not Path(p['path']).resolve().is_relative_to(path_obj.resolve())]
-                    
+
                     if path_obj.is_dir():
                         for item in path_obj.glob('**/*'):
                             if item.is_file():
@@ -116,17 +115,17 @@ class FsoExpansion:
         except Exception as e:
             print(f"Error deleting path: {e}", file=sys.stderr)
 
-    def create_dir(self, name: str, parent_dir: str, description: str = '', is_save_to_csv: bool=True) -> Path:
+    def create_dir(self, name: str, parent_dir: str, description: str = '', is_save_to_csv: bool = True) -> Path:
         return self._create_path(name, parent_dir, description, lambda p: p.mkdir(parents=True, exist_ok=True), is_save_to_csv)
 
-    def create_file(self, name: str, parent_dir: str, description: str = '', is_save_to_csv: bool=True) -> Path:
+    def create_file(self, name: str, parent_dir: str, description: str = '', is_save_to_csv: bool = True) -> Path:
         return self._create_path(name, parent_dir, description, lambda p: p.touch(exist_ok=True), is_save_to_csv)
-    
+
     def list_paths(self) -> None:
         if not self.paths:
             print("No paths saved in CSV.")
         else:
-            self._print_table(["ID", "Name", "Path", "Description"], 
+            self._print_table(["ID", "Name", "Path", "Description"],
                               [(str(p['id']), p['name'], p['path'], p['description']) for p in self.paths])
 
     def _print_csv_path(self) -> None:
@@ -145,5 +144,5 @@ class FsoExpansion:
 
         for row in rows:
             print(" | ".join(f"{cell:{col_widths[i]}}" for i, cell in enumerate(row)))
-        
+
         print()

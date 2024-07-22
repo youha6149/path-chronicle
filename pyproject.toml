@@ -13,6 +13,7 @@ pcmkdir = 'path_chronicle.interface:create_dir_entry'
 pctouch = 'path_chronicle.interface:create_file_entry'
 pcpathslist = 'path_chronicle.interface:list_paths_entry'
 pcrmpath = 'path_chronicle.interface:remove_path_entry'
+gpaths = 'path_chronicle.interface:generate_paths_entry'
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"

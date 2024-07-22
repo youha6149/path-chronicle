@@ -1,4 +1,3 @@
-import argparse
 import csv
 from pathlib import Path
 
@@ -15,7 +14,7 @@ def generate_paths(csv_file: str="paths.csv", output_file: str="paths.py"):
     with open(str(csv_path), mode='r') as file:
         reader = csv.DictReader(file)
         paths = {row['name']: row['path'] for row in reader}
-    
+
     lines = [
         "from pathlib import Path\n",
         "\n",
@@ -34,7 +33,7 @@ def generate_paths(csv_file: str="paths.csv", output_file: str="paths.py"):
     lines.append("        \"\"\"\n")
     lines.append("        Returns the Path object for the given name.\n\n")
     lines.append("        Available paths:\n")
-    
+
     for name, path in paths.items():
         lines.append(f"        - {name}: {path}\n")
 
@@ -43,15 +42,3 @@ def generate_paths(csv_file: str="paths.csv", output_file: str="paths.py"):
     
     with open(str(output_file_path), mode='w') as file:
         file.writelines(lines)
-
-def main():
-    parser = argparse.ArgumentParser(description='Generate a Python file with paths for various project directories and files.')
-    parser.add_argument('--csv', default='paths.csv', help='Path to the CSV file containing paths')
-    parser.add_argument('--output', default='paths.py', help='Path to the output Python file')
-
-    args = parser.parse_args()
-
-    generate_paths(csv_file=args.csv, output_file=args.output)
-
-if __name__ == "__main__":
-    main()

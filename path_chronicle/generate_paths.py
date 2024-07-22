@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 
 from path_chronicle.utils import get_package_root
 
@@ -13,10 +14,16 @@ def generate_paths(
 ):
     """インテリセンスを表示することのできるパス管理関数"""
 
-    package_root = get_package_root()
-    csv_path = package_root / "csv" / csv_file
-    output_file_path = package_root / output_file
-    
+    csv_dir = Path(csv_root_dir) / csv_dir_name if csv_root_dir else get_package_root() / csv_dir_name
+    csv_path = csv_dir / csv_file
+
+    if not csv_path.exists():
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+
+    module_dir = Path(module_root_dir) / module_dir_name if module_root_dir else get_package_root() / module_dir_name
+    module_dir.mkdir(parents=True, exist_ok=True)
+    module_path = module_dir / output_file
+
     with open(str(csv_path), mode='r') as file:
         reader = csv.DictReader(file)
         paths = {row['name']: row['path'] for row in reader}
@@ -33,7 +40,7 @@ def generate_paths(
 
     for name, path in paths.items():
         lines.append(f"    {name} = Path('{path}')\n")
-    
+
     lines.append("\n    @staticmethod\n")
     lines.append("    def get_path(name: str) -> Path:\n")
     lines.append("        \"\"\"\n")
@@ -45,6 +52,6 @@ def generate_paths(
 
     lines.append("        \"\"\"\n")
     lines.append("        return getattr(Paths, name, None)\n")
-    
-    with open(str(output_file_path), mode='w') as file:
+
+    with open(str(module_path), mode='w') as file:
         file.writelines(lines)

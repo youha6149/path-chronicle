@@ -12,9 +12,9 @@ class PathManager:
         print(f"CSV directory: {self.csv_dir}")
         self.csv_file = self.csv_dir / csv_file
         print(f"CSV file path: {self.csv_file}")
-        self.paths = self.load_paths()
+        self.paths = self._load_paths()
 
-    def load_paths(self):
+    def _load_paths(self):
         paths = {}
         if not self.csv_file.exists() or self.csv_file.stat().st_size == 0:
             print(f"CSV file does not exist or is empty. Returning empty paths dictionary.")
@@ -31,7 +31,7 @@ class PathManager:
 
         return paths
 
-    def save_paths(self):
+    def _save_paths(self):
         try:
             with open(self.csv_file, mode='w', newline='') as file:
                 fieldnames = ['name', 'path']
@@ -51,7 +51,7 @@ class PathManager:
             print(f"Directory created at {new_dir}")
             if save_to_csv:
                 self.paths[name] = str(new_dir)
-                self.save_paths()
+                self._save_paths()
             return new_dir
         except Exception as e:
             print(f"Error creating directory: {e}", file=sys.stderr)
@@ -64,7 +64,7 @@ class PathManager:
             print(f"File created at {new_file}")
             if save_to_csv:
                 self.paths[name] = str(new_file)
-                self.save_paths()
+                self._save_paths()
             return new_file
         except Exception as e:
             print(f"Error creating file: {e}", file=sys.stderr)

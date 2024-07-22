@@ -5,7 +5,7 @@ import sys
 
 
 class FsoExpansion:
-    def __init__(self, csv_file: str):
+    def __init__(self, csv_file: str = "paths.csv", csv_dir_name: str = "csv", csv_root_dir: str = None):
         self.script_dir = Path(__file__).parent
         self.csv_dir = self.script_dir / 'csv'
         self.csv_dir.mkdir(exist_ok=True)

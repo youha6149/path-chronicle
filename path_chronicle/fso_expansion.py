@@ -5,11 +5,11 @@ from collections.abc import Callable
 
 
 class FsoExpansion:
-    def __init__(self, csv_file: str = "paths.csv", csv_dir_name: str = "csv", csv_root_dir: str = None):
+    def __init__(self, csv_name: str = "paths.csv", csv_dir_name: str = "csv", csv_root_dir: str = None):
         self.script_dir = Path(__file__).parent
         self.csv_dir = Path(csv_root_dir) / csv_dir_name if csv_root_dir else self.script_dir / csv_dir_name
         self.csv_dir.mkdir(parents=True, exist_ok=True)
-        self.csv_file = self.csv_dir / csv_file
+        self.csv_file = self.csv_dir / csv_name
         self.paths = self._load_paths()
 
     def _load_paths(self) -> list[dict]:

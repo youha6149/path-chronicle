@@ -5,9 +5,9 @@ from pathlib import Path
 from path_chronicle.utils import get_package_root
 
 
-def generate_paths(csv_file="paths.csv", output_file="paths.py"):
+def generate_paths(csv_file: str="paths.csv", output_file: str="paths.py"):
     """インテリセンスを表示することのできるパス管理関数"""
-    
+
     package_root = get_package_root()
     csv_path = package_root / "csv" / csv_file
     output_file_path = package_root / output_file

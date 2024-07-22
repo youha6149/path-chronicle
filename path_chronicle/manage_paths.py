@@ -43,14 +43,14 @@ class PathManager:
         except Exception as e:
             print(f"Error saving paths: {e}", file=sys.stderr)
 
-    def _create_path(self, name, parent_dir, create_function, save_to_csv=True):
+    def _create_path(self, name, parent_dir, create_function, is_save_to_csv=True):
         try:
             parent_path = Path(parent_dir)
             new_path = parent_path / name
             create_function(new_path)
             print(f"Path created at {new_path}")
 
-            if save_to_csv:
+            if is_save_to_csv:
                 self.paths[name] = str(new_path)
                 self._save_paths()
 
@@ -59,11 +59,11 @@ class PathManager:
         except Exception as e:
             print(f"Error creating path: {e}", file=sys.stderr)
 
-    def create_dir(self, name, parent_dir, save_to_csv=True):
-        return self._create_path(name, parent_dir, lambda p: p.mkdir(parents=True, exist_ok=True), save_to_csv)
+    def create_dir(self, name, parent_dir, is_save_to_csv=True):
+        return self._create_path(name, parent_dir, lambda p: p.mkdir(parents=True, exist_ok=True), is_save_to_csv)
 
-    def create_file(self, name, parent_dir, save_to_csv=True):
-        return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), save_to_csv)
+    def create_file(self, name, parent_dir, is_save_to_csv=True):
+        return self._create_path(name, parent_dir, lambda p: p.touch(exist_ok=True), is_save_to_csv)
 
 def main():
     try:
@@ -77,12 +77,12 @@ def main():
         args = parser.parse_args()
 
         pm = PathManager(args.csv)
-        save_to_csv = not args.no_save
+        is_save_to_csv = not args.no_save
 
         if args.action == 'create_dir':
-            pm.create_dir(args.name, args.parent_dir, save_to_csv)
+            pm.create_dir(args.name, args.parent_dir, is_save_to_csv)
         elif args.action == 'create_file':
-            pm.create_file(args.name, args.parent_dir, save_to_csv)
+            pm.create_file(args.name, args.parent_dir, is_save_to_csv)
     except Exception as e:
         print(f"Error in main function: {e}", file=sys.stderr)
 

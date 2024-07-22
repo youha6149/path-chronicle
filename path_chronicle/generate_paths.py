@@ -3,7 +3,14 @@ import csv
 from path_chronicle.utils import get_package_root
 
 
-def generate_paths(csv_file: str="paths.csv", output_file: str="paths.py"):
+def generate_paths(
+    csv_file: str = "paths.csv",
+    output_file: str = "paths.py",
+    csv_dir_name: str = "csv",
+    module_dir_name: str = "path_module",
+    csv_root_dir: str = None,
+    module_root_dir: str = None,
+):
     """インテリセンスを表示することのできるパス管理関数"""
 
     package_root = get_package_root()

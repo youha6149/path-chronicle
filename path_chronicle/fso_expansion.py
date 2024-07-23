@@ -66,7 +66,7 @@ class FsoExpansion:
         description: str,
         create_function: Callable[[Path], None],
         is_save_to_csv: bool = True,
-    ) -> Path:
+    ) -> Path | None:
         try:
             parent_path = Path(parent_dir)
             new_path = parent_path / name
@@ -90,6 +90,7 @@ class FsoExpansion:
 
         except Exception as e:
             print(f"Error creating path: {e}", file=sys.stderr)
+            return None
 
     def remove_path(self, id: int = None, name: str = None, path: str = None) -> None:
         try:

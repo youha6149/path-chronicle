@@ -426,7 +426,7 @@ def test_remove_path_and_from_csv_by_path(setup_csv, setup_env):
         assert len(rows) == 0, "CSV should be empty after removing the path by path."
 
 
-def test_remove_nonexistent_path(setup_csv, setup_env):
+def test_remove_path_does_not_exist_arguments(setup_csv, setup_env):
     """
     Test that FsoExpansion handles attempts to remove nonexistent paths.
 
@@ -437,13 +437,23 @@ def test_remove_nonexistent_path(setup_csv, setup_env):
     Asserts:
         The output should indicate that no path was found with the given identifier.
     """
+
+    test_dir = setup_env / "test_path"
+    test_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(setup_csv, mode="a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["1", "test_name", str(test_dir), "test_description"])
+
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
+
     f = StringIO()
     with redirect_stdout(f):
         pm.remove_path_and_from_csv(id=999)
     output = f.getvalue()
+
     assert (
         "No path found with id: 999" in output
     ), "Should indicate no path found with given ID."

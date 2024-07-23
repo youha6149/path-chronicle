@@ -5,12 +5,32 @@ from pathlib import Path
 
 
 class FsoExpansion:
+    """
+    A class that provides extended file system operations.
+
+    Attributes:
+        script_dir (Path): The directory path of the script.
+        csv_dir (Path): The directory path where CSV files are stored.
+        csv_file (Path): The path to the CSV file.
+        paths (list): A list that stores path info.
+    """
+
     def __init__(
         self,
         csv_name: str = "paths.csv",
         csv_dir_name: str = "csv",
         csv_root_dir: str | None = None,
     ):
+        """
+        Constructor for the FsoExpansion class.
+
+        Args:
+            csv_name (str): The name of the CSV file. Default is "paths.csv".
+            csv_dir_name (str): The name of the directory where the CSV file is stored.
+                                Default is "csv".
+            csv_root_dir (str | None): The root directory path for the CSV file.
+                                       Default is None.
+        """
         self.script_dir = Path(__file__).parent
         self.csv_dir = (
             Path(csv_root_dir) / csv_dir_name
@@ -22,6 +42,12 @@ class FsoExpansion:
         self.paths = self._load_paths()
 
     def _load_paths(self) -> list[dict]:
+        """
+        Loads path info from the CSV file.
+
+        Returns:
+            list[dict]: A list of path info.
+        """
         paths: list = []
         if not self.csv_file.exists() or self.csv_file.stat().st_size == 0:
             print("CSV file does not exist or is empty. Returning empty paths list.")
@@ -46,6 +72,9 @@ class FsoExpansion:
         return paths
 
     def _save_paths(self) -> None:
+        """
+        Saves path info to the CSV file.
+        """
         try:
             with open(self.csv_file, mode="w", newline="") as file:
                 fieldnames = ["id", "name", "path", "description"]
@@ -67,6 +96,19 @@ class FsoExpansion:
         create_function: Callable[[Path], None],
         is_save_to_csv: bool = True,
     ) -> Path | None:
+        """
+        Creates a new path and optionally saves the path info to the CSV file.
+
+        Args:
+            name (str): The name of the path to create.
+            parent_dir (str): The path of the parent directory.
+            description (str): A description of the path.
+            create_function (Callable[[Path], None]): A function to create the path.
+            is_save_to_csv (bool): Whether to save to the CSV file. Default is True.
+
+        Returns:
+            Path | None: The created path object. None if an error occurs.
+        """
         try:
             parent_path = Path(parent_dir)
             new_path = parent_path / name
@@ -95,6 +137,15 @@ class FsoExpansion:
     def remove_path(
         self, id: int | None = None, name: str | None = None, path: str | None = None
     ) -> None:
+        """
+        Removes a path based on the specified ID, name, or path,
+        and also removes it from the CSV file.
+
+        Args:
+            id (int | None): The ID of the path to remove.
+            name (str | None): The name of the path to remove.
+            path (str | None): The string representation of the path to remove.
+        """
         try:
             target_path = None
 
@@ -162,6 +213,18 @@ class FsoExpansion:
         description: str = "",
         is_save_to_csv: bool = True,
     ) -> Path | None:
+        """
+        Creates a new directory and optionally saves the path info to the CSV file.
+
+        Args:
+            name (str): The name of the directory to create.
+            parent_dir (str): The path of the parent directory.
+            description (str): A description of the directory.
+            is_save_to_csv (bool): Whether to save to the CSV file. Default is True.
+
+        Returns:
+            Path | None: The created directory path. None if an error occurs.
+        """
         return self._create_path(
             name,
             parent_dir,
@@ -177,6 +240,18 @@ class FsoExpansion:
         description: str = "",
         is_save_to_csv: bool = True,
     ) -> Path | None:
+        """
+        Creates a new file and optionally saves the path info to the CSV file.
+
+        Args:
+            name (str): The name of the file to create.
+            parent_dir (str): The path of the parent directory.
+            description (str): A description of the file.
+            is_save_to_csv (bool): Whether to save to the CSV file. Default is True.
+
+        Returns:
+            Path | None: The created file path. None if an error occurs.
+        """
         return self._create_path(
             name,
             parent_dir,
@@ -186,6 +261,9 @@ class FsoExpansion:
         )
 
     def list_paths(self) -> None:
+        """
+        Lists the saved path info.
+        """
         if not self.paths:
             print("No paths saved in CSV.")
         else:
@@ -198,10 +276,20 @@ class FsoExpansion:
             )
 
     def _print_csv_path(self) -> None:
+        """
+        Prints the CSV file path info.
+        """
         print(f"CSV directory: {self.csv_dir}")
         print(f"CSV file path: {self.csv_file}\n")
 
     def _print_table(self, headers, rows) -> None:
+        """
+        Displays data in a table format.
+
+        Args:
+            headers (list): The table headers.
+            rows (list): The table row data.
+        """
         col_widths = [len(header) for header in headers]
         for row in rows:
             for i, cell in enumerate(row):

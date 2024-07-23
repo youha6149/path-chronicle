@@ -9,8 +9,8 @@ def generate_paths(
     module_name: str = "paths.py",
     csv_dir_name: str = "csv",
     module_dir_name: str = "path_module",
-    csv_root_dir: str = None,
-    module_root_dir: str = None,
+    csv_root_dir: str | None = None,
+    module_root_dir: str | None = None,
 ):
     """インテリセンスを表示することのできるパス管理関数"""
 

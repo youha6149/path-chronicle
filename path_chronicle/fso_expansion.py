@@ -9,7 +9,7 @@ class FsoExpansion:
         self,
         csv_name: str = "paths.csv",
         csv_dir_name: str = "csv",
-        csv_root_dir: str = None,
+        csv_root_dir: str | None = None,
     ):
         self.script_dir = Path(__file__).parent
         self.csv_dir = (
@@ -22,7 +22,7 @@ class FsoExpansion:
         self.paths = self._load_paths()
 
     def _load_paths(self) -> list[dict]:
-        paths = []
+        paths: list = []
         if not self.csv_file.exists() or self.csv_file.stat().st_size == 0:
             print(f"CSV file does not exist or is empty. Returning empty paths list.")
             return paths
@@ -92,7 +92,9 @@ class FsoExpansion:
             print(f"Error creating path: {e}", file=sys.stderr)
             return None
 
-    def remove_path(self, id: int = None, name: str = None, path: str = None) -> None:
+    def remove_path(
+        self, id: int | None = None, name: str | None = None, path: str | None = None
+    ) -> None:
         try:
             target_path = None
 
@@ -159,7 +161,7 @@ class FsoExpansion:
         parent_dir: str,
         description: str = "",
         is_save_to_csv: bool = True,
-    ) -> Path:
+    ) -> Path | None:
         return self._create_path(
             name,
             parent_dir,
@@ -174,7 +176,7 @@ class FsoExpansion:
         parent_dir: str,
         description: str = "",
         is_save_to_csv: bool = True,
-    ) -> Path:
+    ) -> Path | None:
         return self._create_path(
             name,
             parent_dir,

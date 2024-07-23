@@ -8,7 +8,15 @@ from path_chronicle.generate_paths import generate_paths
 
 @pytest.fixture
 def setup_csv(tmp_path):
-    """Fixture to create a temporary CSV file for testing."""
+    """
+    Fixture to create a temporary CSV file for testing.
+
+    Args:
+        tmp_path (Path): Temporary directory path provided by pytest.
+
+    Returns:
+        Path: The path to the created temporary CSV file.
+    """
     csv_dir = tmp_path / "csv"
     csv_dir.mkdir(parents=True, exist_ok=True)
     csv_file = csv_dir / "test_paths.csv"
@@ -20,7 +28,15 @@ def setup_csv(tmp_path):
 
 @pytest.fixture
 def setup_env(tmp_path):
-    """Fixture to set up the test environment."""
+    """
+    Fixture to set up the test environment by changing the current working directory.
+
+    Args:
+        tmp_path (Path): Temporary directory path provided by pytest.
+
+    Yields:
+        Path: The temporary directory path.
+    """
     original_dir = os.getcwd()
     os.chdir(tmp_path)
     yield tmp_path
@@ -28,6 +44,17 @@ def setup_env(tmp_path):
 
 
 def test_generate_paths_empty_csv(setup_csv, setup_env):
+    """
+    Test the generate_paths function with an empty CSV file.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The generated paths.py file content should match
+        the expected content for an empty CSV.
+    """
     module_dir = setup_env / "path_module"
     module_dir.mkdir(parents=True, exist_ok=True)
     output_file = module_dir / "paths.py"
@@ -66,6 +93,17 @@ def test_generate_paths_empty_csv(setup_csv, setup_env):
 
 
 def test_generate_paths_with_data(setup_csv, setup_env):
+    """
+    Test the generate_paths function with a CSV file containing data.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The generated paths.py file content should match
+        the expected content for a CSV with data.
+    """
     with open(setup_csv, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([1, "test_name", "/path/to/test", "Test path"])
@@ -110,6 +148,17 @@ def test_generate_paths_with_data(setup_csv, setup_env):
 
 
 def test_generate_paths_with_multiple_entries(setup_csv, setup_env):
+    """
+    Test the generate_paths function with a CSV file containing multiple entries.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The generated paths.py file content should match
+        the expected content for a CSV with multiple entries.
+    """
     with open(setup_csv, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([1, "test_name1", "/path/to/test1", "Test path 1"])

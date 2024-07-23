@@ -153,4 +153,4 @@ def test_generate_paths_with_multiple_entries(setup_csv, setup_env):
 
     assert (
         content == expected_content
-    ), "Generated paths.py content does not match expected content for CSV with multiple entries."
+    ), "Generated paths.py content doesn't match expected content for CSV with entries."

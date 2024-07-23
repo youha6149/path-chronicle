@@ -10,7 +10,15 @@ from path_chronicle.fso_expansion import FsoExpansion
 
 @pytest.fixture
 def setup_csv(tmp_path):
-    """Fixture to create a temporary CSV file for testing."""
+    """
+    Fixture to create a temporary CSV file for testing.
+
+    Args:
+        tmp_path (Path): Temporary directory path provided by pytest.
+
+    Returns:
+        Path: The path to the created temporary CSV file.
+    """
     csv_dir = tmp_path / "csv"
     csv_dir.mkdir(parents=True, exist_ok=True)
     csv_file = csv_dir / "test_paths.csv"
@@ -22,7 +30,15 @@ def setup_csv(tmp_path):
 
 @pytest.fixture
 def setup_env(tmp_path):
-    """Fixture to set up the test environment."""
+    """
+    Fixture to set up the test environment by changing the current working directory.
+
+    Args:
+        tmp_path (Path): Temporary directory path provided by pytest.
+
+    Yields:
+        Path: The temporary directory path.
+    """
     original_dir = os.getcwd()
     os.chdir(tmp_path)
     yield tmp_path
@@ -30,6 +46,16 @@ def setup_env(tmp_path):
 
 
 def test_load_paths_empty_csv(setup_csv, setup_env):
+    """
+    Test that FsoExpansion correctly handles an empty CSV file.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The paths list should be empty for an empty CSV file.
+    """
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
@@ -37,6 +63,16 @@ def test_load_paths_empty_csv(setup_csv, setup_env):
 
 
 def test_load_paths_with_data(setup_csv, setup_env):
+    """
+    Test that FsoExpansion correctly loads path data from a CSV file.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The paths list should contain the loaded data.
+    """
     with open(setup_csv, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["1", "test_name", "test_path", "test_description"])
@@ -53,6 +89,16 @@ def test_load_paths_with_data(setup_csv, setup_env):
 
 
 def test_create_dir(setup_csv, setup_env):
+    """
+    Test that FsoExpansion can create a directory and save its path to the CSV file.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The directory should be created and the path should be saved to the CSV file.
+    """
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
@@ -80,6 +126,16 @@ def test_create_dir(setup_csv, setup_env):
 
 
 def test_create_file(setup_csv, setup_env):
+    """
+    Test that FsoExpansion can create a file and save its path to the CSV file.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The file should be created and the path should be saved to the CSV file.
+    """
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
@@ -109,6 +165,18 @@ def test_create_file(setup_csv, setup_env):
 
 
 def test_create_dir_no_save(setup_csv, setup_env):
+    """
+    Test that FsoExpansion can create a directory without saving
+    its path to the CSV file.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The directory should be created but
+        the path should not be saved to the CSV file.
+    """
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
@@ -131,6 +199,16 @@ def test_create_dir_no_save(setup_csv, setup_env):
 
 
 def test_create_file_no_save(setup_csv, setup_env):
+    """
+    Test that FsoExpansion can create a file without saving its path to the CSV file.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The file should be created but the path should not be saved to the CSV file.
+    """
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
@@ -153,6 +231,16 @@ def test_create_file_no_save(setup_csv, setup_env):
 
 
 def test_list_paths_empty(setup_csv, setup_env):
+    """
+    Test that FsoExpansion correctly lists paths when the CSV is empty.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The output should indicate no paths are saved.
+    """
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
@@ -164,6 +252,16 @@ def test_list_paths_empty(setup_csv, setup_env):
 
 
 def test_list_paths_with_data(setup_csv, setup_env):
+    """
+    Test that FsoExpansion correctly lists paths when the CSV contains data.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The output should match the expected table format.
+    """
     with open(setup_csv, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["1", "test_name", "test_path", "test_description"])
@@ -187,6 +285,17 @@ def test_list_paths_with_data(setup_csv, setup_env):
 
 
 def test_remove_dir_with_subfiles(setup_csv, setup_env):
+    """
+    Test that FsoExpansion can remove a directory and its subfiles.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The directory and its subfiles should be removed,
+        and the paths list should be empty.
+    """
     test_dir = setup_env / "test_dir"
     test_dir.mkdir(parents=True, exist_ok=True)
     sub_file = test_dir / "sub_file.txt"
@@ -215,6 +324,16 @@ def test_remove_dir_with_subfiles(setup_csv, setup_env):
 
 
 def test_remove_path_by_id(setup_csv, setup_env):
+    """
+    Test that FsoExpansion can remove a path by ID.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The path should be removed from the paths list and the CSV file.
+    """
     test_dir = setup_env / "test_path"
     test_dir.mkdir(parents=True, exist_ok=True)
 
@@ -238,6 +357,16 @@ def test_remove_path_by_id(setup_csv, setup_env):
 
 
 def test_remove_path_by_name(setup_csv, setup_env):
+    """
+    Test that FsoExpansion can remove a path by name.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The path should be removed from the paths list and the CSV file.
+    """
     test_dir = setup_env / "test_path"
     test_dir.mkdir(parents=True, exist_ok=True)
 
@@ -261,6 +390,16 @@ def test_remove_path_by_name(setup_csv, setup_env):
 
 
 def test_remove_path_by_path(setup_csv, setup_env):
+    """
+    Test that FsoExpansion can remove a path by path.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The path should be removed from the paths list and the CSV file.
+    """
     test_dir = setup_env / "test_path"
     test_dir.mkdir(parents=True, exist_ok=True)
 
@@ -284,6 +423,16 @@ def test_remove_path_by_path(setup_csv, setup_env):
 
 
 def test_remove_nonexistent_path(setup_csv, setup_env):
+    """
+    Test that FsoExpansion handles attempts to remove nonexistent paths.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The output should indicate that no path was found with the given identifier.
+    """
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )

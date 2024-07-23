@@ -93,7 +93,7 @@ def test_remove_path_entry(setup_csv, setup_env):
     assert "Path deleted:" in output
     assert not os.path.exists(os.path.join(setup_env, "test_dir"))
 
-    # memo:ファイルはcsvに記録される際に"."が"."に置き換えられる
+    # memo:csvに保存されるファイル名は保存時に"."から"_"に置き換えられる
     rn_test_file_txt = "test_file.txt".replace(".", "_")
     command = f"poetry run pcrmpath --name {rn_test_file_txt} --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)

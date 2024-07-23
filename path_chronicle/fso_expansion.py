@@ -149,6 +149,11 @@ class FsoExpansion:
             path (str | None): The string representation of the path to remove.
         """
         try:
+            if not self.paths:
+                print("No paths available to remove.")
+                print("The CSV file is either non-existent or empty.")
+                return
+
             target_path = None
 
             if id is not None:

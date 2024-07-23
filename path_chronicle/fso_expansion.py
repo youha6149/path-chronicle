@@ -1,12 +1,22 @@
-from pathlib import Path
 import csv
 import sys
 from collections.abc import Callable
+from pathlib import Path
+
 
 class FsoExpansion:
-    def __init__(self, csv_name: str = "paths.csv", csv_dir_name: str = "csv", csv_root_dir: str = None):
+    def __init__(
+        self,
+        csv_name: str = "paths.csv",
+        csv_dir_name: str = "csv",
+        csv_root_dir: str = None,
+    ):
         self.script_dir = Path(__file__).parent
-        self.csv_dir = Path(csv_root_dir) / csv_dir_name if csv_root_dir else self.script_dir / csv_dir_name
+        self.csv_dir = (
+            Path(csv_root_dir) / csv_dir_name
+            if csv_root_dir
+            else self.script_dir / csv_dir_name
+        )
         self.csv_dir.mkdir(parents=True, exist_ok=True)
         self.csv_file = self.csv_dir / csv_name
         self.paths = self._load_paths()
@@ -18,10 +28,17 @@ class FsoExpansion:
             return paths
 
         try:
-            with open(self.csv_file, mode='r') as file:
+            with open(self.csv_file, mode="r") as file:
                 reader = csv.DictReader(file)
                 for row in reader:
-                    paths.append({'id': int(row['id']), 'name': row['name'], 'path': row['path'], 'description': row['description']})
+                    paths.append(
+                        {
+                            "id": int(row["id"]),
+                            "name": row["name"],
+                            "path": row["path"],
+                            "description": row["description"],
+                        }
+                    )
 
         except Exception as e:
             print(f"Error reading CSV file: {e}", file=sys.stderr)
@@ -30,8 +47,8 @@ class FsoExpansion:
 
     def _save_paths(self) -> None:
         try:
-            with open(self.csv_file, mode='w', newline='') as file:
-                fieldnames = ['id', 'name', 'path', 'description']
+            with open(self.csv_file, mode="w", newline="") as file:
+                fieldnames = ["id", "name", "path", "description"]
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 writer.writeheader()
                 for path_info in self.paths:
@@ -42,7 +59,14 @@ class FsoExpansion:
         except Exception as e:
             print(f"Error saving paths: {e}", file=sys.stderr)
 
-    def _create_path(self, name: str, parent_dir: str, description: str, create_function: Callable[[Path], None], is_save_to_csv: bool = True) -> Path:
+    def _create_path(
+        self,
+        name: str,
+        parent_dir: str,
+        description: str,
+        create_function: Callable[[Path], None],
+        is_save_to_csv: bool = True,
+    ) -> Path:
         try:
             parent_path = Path(parent_dir)
             new_path = parent_path / name
@@ -51,8 +75,15 @@ class FsoExpansion:
 
             if is_save_to_csv:
                 self._print_csv_path()
-                new_id = max([p['id'] for p in self.paths], default=0) + 1
-                self.paths.append({'id': new_id, 'name': name.replace(".", "_"), 'path': str(new_path), 'description': description})
+                new_id = max([p["id"] for p in self.paths], default=0) + 1
+                self.paths.append(
+                    {
+                        "id": new_id,
+                        "name": name.replace(".", "_"),
+                        "path": str(new_path),
+                        "description": description,
+                    }
+                )
                 self._save_paths()
 
             return new_path
@@ -66,8 +97,8 @@ class FsoExpansion:
 
             if id is not None:
                 for p in self.paths:
-                    if p['id'] == id:
-                        target_path = p['path']
+                    if p["id"] == id:
+                        target_path = p["path"]
                         break
 
                 if target_path is None:
@@ -76,8 +107,8 @@ class FsoExpansion:
 
             if name is not None and target_path is None:
                 for p in self.paths:
-                    if p['name'] == name:
-                        target_path = p['path']
+                    if p["name"] == name:
+                        target_path = p["path"]
                         break
 
                 if target_path is None:
@@ -86,17 +117,23 @@ class FsoExpansion:
 
             if path is not None and target_path is None:
                 target_path = str(path)
-                if not any(p['path'] == target_path for p in self.paths):
+                if not any(p["path"] == target_path for p in self.paths):
                     print(f"No path found with path: {target_path}")
                     return
 
             if target_path:
                 path_obj = Path(target_path)
                 if path_obj.exists():
-                    self.paths = [p for p in self.paths if not Path(p['path']).resolve().is_relative_to(path_obj.resolve())]
+                    self.paths = [
+                        p
+                        for p in self.paths
+                        if not Path(p["path"])
+                        .resolve()
+                        .is_relative_to(path_obj.resolve())
+                    ]
 
                     if path_obj.is_dir():
-                        for item in path_obj.glob('**/*'):
+                        for item in path_obj.glob("**/*"):
                             if item.is_file():
                                 item.unlink()
                             else:
@@ -115,18 +152,47 @@ class FsoExpansion:
         except Exception as e:
             print(f"Error deleting path: {e}", file=sys.stderr)
 
-    def create_dir(self, name: str, parent_dir: str, description: str = '', is_save_to_csv: bool = True) -> Path:
-        return self._create_path(name, parent_dir, description, lambda p: p.mkdir(parents=True, exist_ok=True), is_save_to_csv)
+    def create_dir(
+        self,
+        name: str,
+        parent_dir: str,
+        description: str = "",
+        is_save_to_csv: bool = True,
+    ) -> Path:
+        return self._create_path(
+            name,
+            parent_dir,
+            description,
+            lambda p: p.mkdir(parents=True, exist_ok=True),
+            is_save_to_csv,
+        )
 
-    def create_file(self, name: str, parent_dir: str, description: str = '', is_save_to_csv: bool = True) -> Path:
-        return self._create_path(name, parent_dir, description, lambda p: p.touch(exist_ok=True), is_save_to_csv)
+    def create_file(
+        self,
+        name: str,
+        parent_dir: str,
+        description: str = "",
+        is_save_to_csv: bool = True,
+    ) -> Path:
+        return self._create_path(
+            name,
+            parent_dir,
+            description,
+            lambda p: p.touch(exist_ok=True),
+            is_save_to_csv,
+        )
 
     def list_paths(self) -> None:
         if not self.paths:
             print("No paths saved in CSV.")
         else:
-            self._print_table(["ID", "Name", "Path", "Description"],
-                              [(str(p['id']), p['name'], p['path'], p['description']) for p in self.paths])
+            self._print_table(
+                ["ID", "Name", "Path", "Description"],
+                [
+                    (str(p["id"]), p["name"], p["path"], p["description"])
+                    for p in self.paths
+                ],
+            )
 
     def _print_csv_path(self) -> None:
         print(f"CSV directory: {self.csv_dir}")
@@ -138,9 +204,11 @@ class FsoExpansion:
             for i, cell in enumerate(row):
                 col_widths[i] = max(col_widths[i], len(cell))
 
-        header_row = " | ".join(f"{header:{col_widths[i]}}" for i, header in enumerate(headers))
+        header_row = " | ".join(
+            f"{header:{col_widths[i]}}" for i, header in enumerate(headers)
+        )
         print(header_row)
-        print("-+-".join('-' * width for width in col_widths))
+        print("-+-".join("-" * width for width in col_widths))
 
         for row in rows:
             print(" | ".join(f"{cell:{col_widths[i]}}" for i, cell in enumerate(row)))

@@ -3,4 +3,6 @@ csv
 *.csv
 __pycache__
 .pytest_cache
-paths.py
+path_module
+.venv
+.mypy_cache

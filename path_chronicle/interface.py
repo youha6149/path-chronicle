@@ -6,6 +6,24 @@ from path_chronicle.generate_paths import generate_paths
 
 
 def _common_parser(description: str) -> argparse.ArgumentParser:
+    """
+    Creates and returns a common argument parser for directory and file creation commands.
+
+    Args:
+        description (str): A description for the parser, explaining the command's purpose.
+
+    Returns:
+        argparse.ArgumentParser: The configured argument parser.
+
+    Arguments:
+        name (str): Name of the directory or file to create.
+        parent_dir (str): Parent directory where the directory or file will be created.
+        --description (str): Description for the directory or file. Default is an empty string.
+        --csv_name (str): Name of the CSV file for storing paths. Default is "paths.csv".
+        --csv_root_dir (str | None): Root directory where the CSV file will be stored. Default is None.
+        --csv_dir_name (str): Name of the directory containing the CSV file. Default is "csv".
+        --no-save (bool): Do not save the path to the CSV file. If specified, the path will not be saved.
+    """
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("name", help="Name of the directory or file to create")
     parser.add_argument(
@@ -36,7 +54,9 @@ def _common_parser(description: str) -> argparse.ArgumentParser:
 
 def create_dir_entry():
     """
-    ex:
+    Create a directory and optionally saves the path info to the CSV file.
+
+    Example usage:
         poetry run pcmkdir my_temp_directory ./ --description "Temporary directory for storage"
     """
     try:
@@ -57,7 +77,9 @@ def create_dir_entry():
 
 def create_file_entry():
     """
-    ex:
+    Create a file and optionally saves the path info to the CSV file.
+
+    Example usage:
         poetry run pctouch another_file.txt my_temp_directory --description "Another file for testing"
     """
     try:
@@ -78,7 +100,9 @@ def create_file_entry():
 
 def list_paths_entry():
     """
-    ex:
+    List all paths stored in the CSV file.
+
+    Example usage:
         poetry run pcpathslist
     """
     try:
@@ -92,7 +116,7 @@ def list_paths_entry():
         )
         parser.add_argument(
             "--csv_root_dir",
-            help="Root directory where the CSV file will be stored",
+            help="Root directory where the CSV file is stored",
             default=None,
         )
         parser.add_argument(
@@ -115,14 +139,17 @@ def list_paths_entry():
 
 def remove_path_entry():
     """
-    ex:
+    Remove a path based on ID, name, or path.
+    and also removes it from the CSV file.
+
+    Example usage:
         poetry run pcrmpath --id 1
         poetry run pcrmpath --name example_name
         poetry run pcrmpath --path /example/path/to/delete
     """
     try:
         parser = argparse.ArgumentParser(
-            description="Remove a path based on id, name, or path."
+            description="Remove a path based on ID, name, or path."
         )
         parser.add_argument("--id", type=int, help="ID of the path to remove")
         parser.add_argument("--name", help="Name of the path to remove")
@@ -134,7 +161,7 @@ def remove_path_entry():
         )
         parser.add_argument(
             "--csv_root_dir",
-            help="Root directory where the CSV file will be stored",
+            help="Root directory where the CSV file is stored",
             default=None,
         )
         parser.add_argument(
@@ -161,7 +188,9 @@ def remove_path_entry():
 
 def generate_paths_entry():
     """
-    ex:
+    Generate a Python file with paths for project directories and files.
+
+    Example usage:
         poetry run gpaths
         poetry run gpaths --csv_root_dir ./csv --module_root_dir ./path_module --module_name paths.py
     """

@@ -24,7 +24,7 @@ class FsoExpansion:
     def _load_paths(self) -> list[dict]:
         paths: list = []
         if not self.csv_file.exists() or self.csv_file.stat().st_size == 0:
-            print(f"CSV file does not exist or is empty. Returning empty paths list.")
+            print("CSV file does not exist or is empty. Returning empty paths list.")
             return paths
 
         try:

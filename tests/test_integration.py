@@ -9,7 +9,15 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 @pytest.fixture
 def setup_csv(tmp_path):
-    """Fixture to create a temporary CSV file for testing."""
+    """
+    Fixture to create a temporary CSV file for testing.
+
+    Args:
+        tmp_path (Path): Temporary directory path provided by pytest.
+
+    Returns:
+        Path: The path to the created temporary CSV file.
+    """
     csv_dir = tmp_path / "csv"
     csv_dir.mkdir(parents=True, exist_ok=True)
     csv_file = csv_dir / "test_paths.csv"
@@ -21,7 +29,15 @@ def setup_csv(tmp_path):
 
 @pytest.fixture
 def setup_env(tmp_path):
-    """Fixture to set up the test environment."""
+    """
+    Fixture to set up the test environment by changing the current working directory.
+
+    Args:
+        tmp_path (Path): Temporary directory path provided by pytest.
+
+    Yields:
+        Path: The temporary directory path.
+    """
     original_dir = os.getcwd()
     os.chdir(tmp_path)
     yield tmp_path
@@ -29,6 +45,19 @@ def setup_env(tmp_path):
 
 
 def run_command(command, cwd=None):
+    """
+    Run a shell command and assert it completes successfully.
+
+    Args:
+        command (str): The command to run.
+        cwd (str, optional): The directory to run the command in.
+
+    Returns:
+        str: The standard output of the command.
+
+    Raises:
+        AssertionError: If the command returns a non-zero exit code.
+    """
     result = subprocess.run(
         command, shell=True, text=True, capture_output=True, cwd=cwd
     )
@@ -41,6 +70,16 @@ def run_command(command, cwd=None):
 
 
 def test_create_dir_entry(setup_csv, setup_env):
+    """
+    Test the creation of a directory via the command line entry point.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The directory should be created and the output should indicate success.
+    """
     command = f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path created at" in output
@@ -48,6 +87,16 @@ def test_create_dir_entry(setup_csv, setup_env):
 
 
 def test_create_file_entry(setup_csv, setup_env):
+    """
+    Test the creation of a file via the command line entry point.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The file should be created and the output should indicate success.
+    """
     command = f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path created at" in output
@@ -55,6 +104,16 @@ def test_create_file_entry(setup_csv, setup_env):
 
 
 def test_list_paths_entry(setup_csv, setup_env):
+    """
+    Test listing paths via the command line entry point.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The output should contain the headers and the created paths.
+    """
     run_command(
         f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,
@@ -78,6 +137,16 @@ def test_list_paths_entry(setup_csv, setup_env):
 
 
 def test_remove_path_entry(setup_csv, setup_env):
+    """
+    Test removing paths via the command line entry point.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The directory and file should be removed and the output should indicate success.
+    """
     run_command(
         f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,
@@ -101,6 +170,16 @@ def test_remove_path_entry(setup_csv, setup_env):
 
 
 def test_generate_paths_entry(setup_csv, setup_env):
+    """
+    Test generating paths via the command line entry point.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The generated paths.py file should contain the paths and the output should indicate success.
+    """
     run_command(
         f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,

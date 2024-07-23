@@ -7,6 +7,6 @@
         },
     },
     "flake8.args": [
-        "--max-line-length=88",
+        "--config=${workspaceFolder}/.flake8"
     ]
 }

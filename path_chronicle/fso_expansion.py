@@ -3,13 +3,15 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+from path_chronicle.utils import get_package_root
+
 
 class FsoExpansion:
     """
     A class that provides extended file system operations.
 
     Attributes:
-        script_dir (Path): The directory path of the script.
+        package_root_dir (Path): The directory path of the package root.
         csv_dir (Path): The directory path where CSV files are stored.
         csv_file (Path): The path to the CSV file.
         paths (list): A list that stores path info.
@@ -31,11 +33,11 @@ class FsoExpansion:
             csv_root_dir (str | None): The root directory path for the CSV file.
                                        Default is None.
         """
-        self.script_dir = Path(__file__).parent
+        self.package_root_dir = get_package_root()
         self.csv_dir = (
             Path(csv_root_dir) / csv_dir_name
             if csv_root_dir
-            else self.script_dir / csv_dir_name
+            else self.package_root_dir / csv_dir_name
         )
         self.csv_dir.mkdir(parents=True, exist_ok=True)
         self.csv_file = self.csv_dir / csv_name

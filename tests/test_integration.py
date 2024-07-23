@@ -111,7 +111,7 @@ def test_generate_paths_entry(setup_csv, setup_env):
     )
 
     command = f"poetry run gpaths --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv --module_name paths.py --module_root_dir {setup_env} --module_dir_name path_module"
-    output = run_command(command, cwd=PROJECT_ROOT)
+    run_command(command, cwd=PROJECT_ROOT)
     assert os.path.exists(setup_env / "path_module" / "paths.py")
 
     with open(setup_env / "path_module" / "paths.py", "r") as file:

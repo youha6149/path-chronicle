@@ -487,3 +487,30 @@ def test_remove_path_does_not_exist_arguments(setup_csv, setup_env):
     assert (
         "No path found with path: /nonexistent/path" in output
     ), "Should indicate no path found with given path."
+
+
+def test_remove_path_empty_paths_list(setup_csv, setup_env):
+    """
+    Test that FsoExpansion empty paths list for remove path method.
+
+    Args:
+        setup_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The output should indicate that no processing is done
+    """
+
+    pm = FsoExpansion(
+        csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
+    )
+    f = StringIO()
+    with redirect_stdout(f):
+        pm.remove_path_and_from_csv(id=1)
+    output = f.getvalue()
+
+    assert pm.paths == [], "Paths list should be empty for an empty CSV."
+    assert (
+        "No paths available to remove.\nThe CSV file is either non-existent or empty.\n"
+        == output
+    ), "Should indicate that no processing is to be done"

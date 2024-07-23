@@ -88,7 +88,7 @@ def test_load_paths_with_data(setup_csv, setup_env):
     ), "Description should match the CSV data."
 
 
-def test_create_dir(setup_csv, setup_env):
+def test_create_dir_and_save_csv(setup_csv, setup_env):
     """
     Test that FsoExpansion can create a directory and save its path to the CSV file.
 
@@ -102,7 +102,9 @@ def test_create_dir(setup_csv, setup_env):
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
-    new_dir = pm.create_dir("test_dir", str(setup_env), "Test directory description")
+    new_dir = pm.create_dir_and_save_csv(
+        "test_dir", str(setup_env), "Test directory description"
+    )
 
     assert new_dir.exists() and new_dir.is_dir(), "Directory should be created."
     assert (
@@ -125,7 +127,7 @@ def test_create_dir(setup_csv, setup_env):
         ), "CSV should contain the correct description."
 
 
-def test_create_file(setup_csv, setup_env):
+def test_create_file_and_save_csv(setup_csv, setup_env):
     """
     Test that FsoExpansion can create a file and save its path to the CSV file.
 
@@ -139,7 +141,9 @@ def test_create_file(setup_csv, setup_env):
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
-    new_file = pm.create_file("test_file.txt", str(setup_env), "Test file description")
+    new_file = pm.create_file_and_save_csv(
+        "test_file.txt", str(setup_env), "Test file description"
+    )
 
     rn_filename = "test_file_txt"
 
@@ -164,7 +168,7 @@ def test_create_file(setup_csv, setup_env):
         ), "CSV should contain the correct description."
 
 
-def test_create_dir_no_save(setup_csv, setup_env):
+def test_create_dir_no_save_csv(setup_csv, setup_env):
     """
     Test that FsoExpansion can create a directory without saving
     its path to the CSV file.
@@ -180,7 +184,7 @@ def test_create_dir_no_save(setup_csv, setup_env):
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
-    new_dir = pm.create_dir(
+    new_dir = pm.create_dir_and_save_csv(
         "test_dir_nosave",
         str(setup_env),
         "Test directory no save",
@@ -198,7 +202,7 @@ def test_create_dir_no_save(setup_csv, setup_env):
         assert len(rows) == 0, "CSV should remain empty."
 
 
-def test_create_file_no_save(setup_csv, setup_env):
+def test_create_file_no_save_csv(setup_csv, setup_env):
     """
     Test that FsoExpansion can create a file without saving its path to the CSV file.
 
@@ -212,7 +216,7 @@ def test_create_file_no_save(setup_csv, setup_env):
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
-    new_file = pm.create_file(
+    new_file = pm.create_file_and_save_csv(
         "test_file_nosave.txt",
         str(setup_env),
         "Test file no save",
@@ -284,7 +288,7 @@ def test_list_paths_with_data(setup_csv, setup_env):
     ), f"Output should match expected table format:\n{output}"
 
 
-def test_remove_dir_with_subfiles(setup_csv, setup_env):
+def test_remove_dir_and_from_csv_with_subfiles(setup_csv, setup_env):
     """
     Test that FsoExpansion can remove a directory and its subfiles.
 
@@ -309,7 +313,7 @@ def test_remove_dir_with_subfiles(setup_csv, setup_env):
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
-    pm.remove_path(path=str(test_dir))
+    pm.remove_path_and_from_csv(path=str(test_dir))
 
     assert (
         len(pm.paths) == 0
@@ -323,7 +327,7 @@ def test_remove_dir_with_subfiles(setup_csv, setup_env):
         ), "CSV should be empty after removing the directory with subfiles."
 
 
-def test_remove_path_by_id(setup_csv, setup_env):
+def test_remove_path_and_from_csv_by_id(setup_csv, setup_env):
     """
     Test that FsoExpansion can remove a path by ID.
 
@@ -344,7 +348,7 @@ def test_remove_path_by_id(setup_csv, setup_env):
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
-    pm.remove_path(id=1)
+    pm.remove_path_and_from_csv(id=1)
 
     assert (
         len(pm.paths) == 0
@@ -356,7 +360,7 @@ def test_remove_path_by_id(setup_csv, setup_env):
         assert len(rows) == 0, "CSV should be empty after removing the path by ID."
 
 
-def test_remove_path_by_name(setup_csv, setup_env):
+def test_remove_path_and_from_csv_by_name(setup_csv, setup_env):
     """
     Test that FsoExpansion can remove a path by name.
 
@@ -377,7 +381,7 @@ def test_remove_path_by_name(setup_csv, setup_env):
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
-    pm.remove_path(name="test_name")
+    pm.remove_path_and_from_csv(name="test_name")
 
     assert (
         len(pm.paths) == 0
@@ -389,7 +393,7 @@ def test_remove_path_by_name(setup_csv, setup_env):
         assert len(rows) == 0, "CSV should be empty after removing the path by name."
 
 
-def test_remove_path_by_path(setup_csv, setup_env):
+def test_remove_path_and_from_csv_by_path(setup_csv, setup_env):
     """
     Test that FsoExpansion can remove a path by path.
 
@@ -410,7 +414,7 @@ def test_remove_path_by_path(setup_csv, setup_env):
     pm = FsoExpansion(
         csv_name=setup_csv.name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
-    pm.remove_path(path=str(test_dir))
+    pm.remove_path_and_from_csv(path=str(test_dir))
 
     assert (
         len(pm.paths) == 0
@@ -438,21 +442,21 @@ def test_remove_nonexistent_path(setup_csv, setup_env):
     )
     f = StringIO()
     with redirect_stdout(f):
-        pm.remove_path(id=999)
+        pm.remove_path_and_from_csv(id=999)
     output = f.getvalue()
     assert (
         "No path found with id: 999" in output
     ), "Should indicate no path found with given ID."
 
     with redirect_stdout(f):
-        pm.remove_path(name="nonexistent_name")
+        pm.remove_path_and_from_csv(name="nonexistent_name")
     output = f.getvalue()
     assert (
         "No path found with name: nonexistent_name" in output
     ), "Should indicate no path found with given name."
 
     with redirect_stdout(f):
-        pm.remove_path(path="/nonexistent/path")
+        pm.remove_path_and_from_csv(path="/nonexistent/path")
     output = f.getvalue()
     assert (
         "No path found with path: /nonexistent/path" in output

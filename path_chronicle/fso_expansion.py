@@ -90,7 +90,7 @@ class FsoExpansion:
         except Exception as e:
             print(f"Error saving paths: {e}", file=sys.stderr)
 
-    def _create_path(
+    def _create_path_and_save_csv(
         self,
         name: str,
         parent_dir: str,
@@ -136,7 +136,7 @@ class FsoExpansion:
             print(f"Error creating path: {e}", file=sys.stderr)
             return None
 
-    def remove_path(
+    def remove_path_and_from_csv(
         self, id: int | None = None, name: str | None = None, path: str | None = None
     ) -> None:
         """
@@ -208,7 +208,7 @@ class FsoExpansion:
         except Exception as e:
             print(f"Error deleting path: {e}", file=sys.stderr)
 
-    def create_dir(
+    def create_dir_and_save_csv(
         self,
         name: str,
         parent_dir: str,
@@ -227,7 +227,7 @@ class FsoExpansion:
         Returns:
             Path | None: The created directory path. None if an error occurs.
         """
-        return self._create_path(
+        return self._create_path_and_save_csv(
             name,
             parent_dir,
             description,
@@ -235,7 +235,7 @@ class FsoExpansion:
             is_save_to_csv,
         )
 
-    def create_file(
+    def create_file_and_save_csv(
         self,
         name: str,
         parent_dir: str,
@@ -254,7 +254,7 @@ class FsoExpansion:
         Returns:
             Path | None: The created file path. None if an error occurs.
         """
-        return self._create_path(
+        return self._create_path_and_save_csv(
             name,
             parent_dir,
             description,

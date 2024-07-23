@@ -9,10 +9,10 @@ readme = "README.md"
 python = "^3.12"
 
 [tool.poetry.scripts]
-pcmkdir = 'path_chronicle.interface:create_dir_entry'
-pctouch = 'path_chronicle.interface:create_file_entry'
+pcmkdir = 'path_chronicle.interface:create_dir_and_save_csv_entry'
+pctouch = 'path_chronicle.interface:create_file_and_save_csv_entry'
 pcpathslist = 'path_chronicle.interface:list_paths_entry'
-pcrmpath = 'path_chronicle.interface:remove_path_entry'
+pcrmpath = 'path_chronicle.interface:remove_path_and_from_csv_entry'
 gpaths = 'path_chronicle.interface:generate_paths_entry'
 
 [tool.poetry.group.dev.dependencies]

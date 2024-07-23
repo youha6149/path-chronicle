@@ -52,7 +52,7 @@ def _common_parser(description: str) -> argparse.ArgumentParser:
     return parser
 
 
-def create_dir_entry():
+def create_dir_and_save_csv_entry():
     """
     Create a directory and optionally saves the path info to the CSV file.
 
@@ -69,13 +69,15 @@ def create_dir_entry():
             csv_dir_name=args.csv_dir_name,
         )
         is_save_to_csv = not args.no_save
-        pm.create_dir(args.name, args.parent_dir, args.description, is_save_to_csv)
+        pm.create_dir_and_save_csv(
+            args.name, args.parent_dir, args.description, is_save_to_csv
+        )
 
     except Exception as e:
-        print(f"Error in create_dir_entry function: {e}", file=sys.stderr)
+        print(f"Error in create_dir_and_save_csv_entry function: {e}", file=sys.stderr)
 
 
-def create_file_entry():
+def create_file_and_save_csv_entry():
     """
     Create a file and optionally saves the path info to the CSV file.
 
@@ -92,10 +94,12 @@ def create_file_entry():
             csv_dir_name=args.csv_dir_name,
         )
         is_save_to_csv = not args.no_save
-        pm.create_file(args.name, args.parent_dir, args.description, is_save_to_csv)
+        pm.create_file_and_save_csv(
+            args.name, args.parent_dir, args.description, is_save_to_csv
+        )
 
     except Exception as e:
-        print(f"Error in create_file_entry function: {e}", file=sys.stderr)
+        print(f"Error in create_file_and_save_csv_entry function: {e}", file=sys.stderr)
 
 
 def list_paths_entry():
@@ -137,7 +141,7 @@ def list_paths_entry():
         print(f"Error in list_paths_entry function: {e}", file=sys.stderr)
 
 
-def remove_path_entry():
+def remove_path_and_from_csv_entry():
     """
     Remove a path based on ID, name, or path.
     and also removes it from the CSV file.
@@ -180,7 +184,7 @@ def remove_path_entry():
             csv_root_dir=args.csv_root_dir,
             csv_dir_name=args.csv_dir_name,
         )
-        pm.remove_path(id=args.id, name=args.name, path=args.path)
+        pm.remove_path_and_from_csv(id=args.id, name=args.name, path=args.path)
 
     except Exception as e:
         print(f"Error in remove_path_entry function: {e}", file=sys.stderr)

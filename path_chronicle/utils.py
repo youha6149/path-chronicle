@@ -3,7 +3,14 @@ from pathlib import Path
 
 
 def get_package_root():
-    """Get the root directory of the given package."""
+    """
+    Returns the root directory of the current package.
+
+    Returns:
+        Path | None: The root directory of the package,
+                     or None if the package is not found.
+    """
+
     spec = importlib.util.find_spec(__package__)
     if spec is None or spec.origin is None:
         return None

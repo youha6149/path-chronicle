@@ -12,7 +12,28 @@ def generate_paths(
     csv_root_dir: str | None = None,
     module_root_dir: str | None = None,
 ):
-    """インテリセンスを表示することのできるパス管理関数"""
+    """
+    Generates a module for managing paths listed in a CSV file.
+
+    This function reads paths from CSV file and creates a Python module with these paths
+    as class attributes, facilitating IntelliSense support during development.
+
+    Args:
+        csv_name (str): The name of the CSV file. Default is "paths.csv".
+        module_name (str): The name of the module to be generated.
+                           Default is "paths.py".
+        csv_dir_name (str): The name of the dir where the CSV file is located.
+                            Default is "csv".
+        module_dir_name (str): The name of the dir where the module will be created.
+                               Default is "path_module".
+        csv_root_dir (str | None): The root dir path for the CSV file.
+                                   Default is None.
+        module_root_dir (str | None): The root dir path for the module.
+                                      Default is None.
+
+    Raises:
+        FileNotFoundError: If the specified CSV file does not exist.
+    """
 
     csv_dir = (
         Path(csv_root_dir) / csv_dir_name

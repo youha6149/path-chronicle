@@ -5,6 +5,24 @@ import pytest
 
 
 @pytest.fixture
+def setup_empty_csv(tmp_path):
+    """
+    Fixture to create a empty CSV file for testing.
+
+    Args:
+        tmp_path (Path): Temporary directory path provided by pytest.
+
+    Returns:
+        Path: The path to the created empty CSV file.
+    """
+    csv_dir = tmp_path / "csv"
+    csv_dir.mkdir(parents=True, exist_ok=True)
+    csv_file = csv_dir / "test_paths.csv"
+
+    return csv_file
+
+
+@pytest.fixture
 def setup_csv_header_only(tmp_path):
     """
     Fixture to create a header only temporary CSV file for testing.

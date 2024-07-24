@@ -29,61 +29,61 @@ def run_command(command, cwd=None):
     return result.stdout
 
 
-def test_create_dir_entry(setup_csv, setup_env):
+def test_create_dir_entry(setup_csv_header_only, setup_env):
     """
     Test the creation of a directory via the command line entry point.
 
     Args:
-        setup_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
 
     Asserts:
         The directory should be created and the output should indicate success.
     """
-    command = f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv"
+    command = f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path created at" in output
     assert os.path.exists(os.path.join(setup_env, "test_dir"))
 
 
-def test_create_file_entry(setup_csv, setup_env):
+def test_create_file_entry(setup_csv_header_only, setup_env):
     """
     Test the creation of a file via the command line entry point.
 
     Args:
-        setup_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
 
     Asserts:
         The file should be created and the output should indicate success.
     """
-    command = f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv"
+    command = f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path created at" in output
     assert os.path.exists(os.path.join(setup_env, "test_file.txt"))
 
 
-def test_list_paths_entry(setup_csv, setup_env):
+def test_list_paths_entry(setup_csv_header_only, setup_env):
     """
     Test listing paths via the command line entry point.
 
     Args:
-        setup_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
 
     Asserts:
         The output should contain the headers and the created paths.
     """
     run_command(
-        f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
+        f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,
     )
     run_command(
-        f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
+        f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,
     )
 
-    command = f"poetry run pcpathslist --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv"
+    command = f"poetry run pcpathslist --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)
 
     lines = output.split("\n")
@@ -96,60 +96,60 @@ def test_list_paths_entry(setup_csv, setup_env):
     assert any("test_file.txt" in line for line in lines)
 
 
-def test_remove_path_entry(setup_csv, setup_env):
+def test_remove_path_entry(setup_csv_header_only, setup_env):
     """
     Test removing paths via the command line entry point.
 
     Args:
-        setup_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
 
     Asserts:
         The directory and file should be removed and the output should indicate success.
     """
     run_command(
-        f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
+        f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,
     )
     run_command(
-        f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
+        f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,
     )
 
-    command = f"poetry run pcrmpath --name test_dir --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv"
+    command = f"poetry run pcrmpath --name test_dir --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path deleted:" in output
     assert not os.path.exists(os.path.join(setup_env, "test_dir"))
 
     # memo: When saving the file name to csv, "." will be replaced with "_".
     rn_test_file_txt = "test_file.txt".replace(".", "_")
-    command = f"poetry run pcrmpath --name {rn_test_file_txt} --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv"
+    command = f"poetry run pcrmpath --name {rn_test_file_txt} --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path deleted:" in output
     assert not os.path.exists(os.path.join(setup_env, "test_file.txt"))
 
 
-def test_generate_paths_entry(setup_csv, setup_env):
+def test_generate_paths_entry(setup_csv_header_only, setup_env):
     """
     Test generating paths via the command line entry point.
 
     Args:
-        setup_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
 
     Asserts:
         The generated paths.py file should contain the paths and the output should indicate success.
     """
     run_command(
-        f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
+        f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,
     )
     run_command(
-        f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv",
+        f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv",
         cwd=PROJECT_ROOT,
     )
 
-    command = f"poetry run gpaths --csv_name {setup_csv.name} --csv_root_dir {setup_env} --csv_dir_name csv --module_name paths.py --module_root_dir {setup_env} --module_dir_name path_module"
+    command = f"poetry run gpaths --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --module_name paths.py --module_root_dir {setup_env} --module_dir_name path_module"
     run_command(command, cwd=PROJECT_ROOT)
     assert os.path.exists(setup_env / "path_module" / "paths.py")
 

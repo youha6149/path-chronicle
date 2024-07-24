@@ -5,15 +5,15 @@ import pytest
 
 
 @pytest.fixture
-def setup_csv(tmp_path):
+def setup_csv_header_only(tmp_path):
     """
-    Fixture to create a temporary CSV file for testing.
+    Fixture to create a header only temporary CSV file for testing.
 
     Args:
         tmp_path (Path): Temporary directory path provided by pytest.
 
     Returns:
-        Path: The path to the created temporary CSV file.
+        Path: The path to the created header only temporary CSV file.
     """
     csv_dir = tmp_path / "csv"
     csv_dir.mkdir(parents=True, exist_ok=True)

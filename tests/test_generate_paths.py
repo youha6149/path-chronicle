@@ -60,12 +60,12 @@ def test_generate_paths_empty_csv(setup_env):
         )
 
 
-def test_generate_paths_empty_data(setup_csv, setup_env):
+def test_generate_paths_empty_data(setup_csv_header_only, setup_env):
     """
     Test the generate_paths function with an empty data in CSV file.
 
     Args:
-        setup_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
 
     Asserts:
@@ -76,7 +76,7 @@ def test_generate_paths_empty_data(setup_csv, setup_env):
     module_dir.mkdir(parents=True, exist_ok=True)
     output_file = module_dir / "paths.py"
     generate_paths(
-        csv_name=setup_csv.name,
+        csv_name=setup_csv_header_only.name,
         module_name=output_file.name,
         csv_root_dir=str(setup_env),
         module_root_dir=str(module_dir.parent),
@@ -109,19 +109,19 @@ def test_generate_paths_empty_data(setup_csv, setup_env):
     ), "Generated paths.py content does not match expected content for empty CSV."
 
 
-def test_generate_paths_with_data(setup_csv, setup_env):
+def test_generate_paths_with_data(setup_csv_header_only, setup_env):
     """
     Test the generate_paths function with a CSV file containing data.
 
     Args:
-        setup_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
 
     Asserts:
         The generated paths.py file content should match
         the expected content for a CSV with data.
     """
-    with open(setup_csv, mode="a", newline="") as file:
+    with open(setup_csv_header_only, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([1, "test_name", "/path/to/test", "Test path"])
 
@@ -129,7 +129,7 @@ def test_generate_paths_with_data(setup_csv, setup_env):
     module_dir.mkdir(parents=True, exist_ok=True)
     output_file = module_dir / "paths.py"
     generate_paths(
-        csv_name=setup_csv.name,
+        csv_name=setup_csv_header_only.name,
         module_name=output_file.name,
         csv_root_dir=str(setup_env),
         module_root_dir=str(module_dir.parent),
@@ -164,19 +164,19 @@ def test_generate_paths_with_data(setup_csv, setup_env):
     ), "Generated paths.py content does not match expected content for CSV with data."
 
 
-def test_generate_paths_with_multiple_entries(setup_csv, setup_env):
+def test_generate_paths_with_multiple_entries(setup_csv_header_only, setup_env):
     """
     Test the generate_paths function with a CSV file containing multiple entries.
 
     Args:
-        setup_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
 
     Asserts:
         The generated paths.py file content should match
         the expected content for a CSV with multiple entries.
     """
-    with open(setup_csv, mode="a", newline="") as file:
+    with open(setup_csv_header_only, mode="a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([1, "test_name1", "/path/to/test1", "Test path 1"])
         writer.writerow([2, "test_name2", "/path/to/test2", "Test path 2"])
@@ -185,7 +185,7 @@ def test_generate_paths_with_multiple_entries(setup_csv, setup_env):
     module_dir.mkdir(parents=True, exist_ok=True)
     output_file = module_dir / "paths.py"
     generate_paths(
-        csv_name=setup_csv.name,
+        csv_name=setup_csv_header_only.name,
         module_name=output_file.name,
         csv_root_dir=str(setup_env),
         module_root_dir=str(module_dir.parent),

@@ -82,23 +82,55 @@ def setup_csv_1_data(
 
 
 @pytest.fixture
-def setup_test_dir_paths(tmp_path: Path) -> list[dict[str, str | int]]:
+def setup_csv_with_variable_number_of_data(
+    setup_csv_header_only: Path, setup_test_dir_paths: list[dict[str, str | int]]
+) -> Path:
+    """
+    Fixture to create a temporary CSV file with
+    variable number of data entries for testing.
+
+    Args:
+        setup_csv_header_only: The path to the header-only CSV file.
+        setup_test_dir_paths: List of dictionaries containing the test directory paths.
+
+    Returns:
+        The path to the created CSV file with data entries.
+    """
+
+    with open(setup_csv_header_only, mode="a", newline="") as file:
+        writer = csv.writer(file)
+        for path_data in setup_test_dir_paths:
+            writer.writerow(list(path_data.values()))
+
+    return setup_csv_header_only
+
+
+@pytest.fixture
+def setup_test_dir_paths(
+    tmp_path: Path, request: pytest.FixtureRequest
+) -> list[dict[str, str | int]]:
     """
     Fixture to create a list of test directory paths.
 
     Args:
         tmp_path: Temporary directory path provided by pytest.
+        request: The pytest request object.
 
     Returns:
         A list of dictionaries containing the test directory paths.
     """
+    data_cnt = request.param if hasattr(request, "param") else 1
 
     test_path = tmp_path / "test_dir"
-    return [
+
+    paths: list[dict[str, str | int]] = [
         {
-            "id": 1,
-            "name": "test_dir",
+            "id": i + 1,
+            "name": f"test_dir_{i + 1}",
             "path": str(test_path),
-            "description": "test_dir_description",
+            "description": f"test_dir_description_{i + 1}",
         }
+        for i in range(data_cnt)
     ]
+
+    return paths

@@ -23,23 +23,21 @@ def setup_empty_csv(tmp_path):
 
 
 @pytest.fixture
-def setup_csv_header_only(tmp_path):
+def setup_csv_header_only(setup_empty_csv):
     """
     Fixture to create a header only temporary CSV file for testing.
 
     Args:
-        tmp_path (Path): Temporary directory path provided by pytest.
+        setup_empty_csv (Path): The path to the empty CSV file.
 
     Returns:
         Path: The path to the created header only temporary CSV file.
     """
-    csv_dir = tmp_path / "csv"
-    csv_dir.mkdir(parents=True, exist_ok=True)
-    csv_file = csv_dir / "test_paths.csv"
-    with open(csv_file, mode="w", newline="") as file:
+
+    with open(setup_empty_csv, mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["id", "name", "path", "description"])
-    return csv_file
+    return setup_empty_csv
 
 
 @pytest.fixture

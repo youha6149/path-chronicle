@@ -26,7 +26,7 @@ def test_generate_paths_nonexists_csv(setup_env):
             csv_name="nonexists.csv",
             module_name="paths.py",
             csv_root_dir=str(setup_env),
-            module_root_dir=str(module_dir.parent),
+            module_root_dir=str(setup_env),
         )
 
 
@@ -56,7 +56,7 @@ def test_generate_paths_empty_csv(setup_env):
             csv_name="empty.csv",
             module_name="paths.py",
             csv_root_dir=str(setup_env),
-            module_root_dir=str(module_dir.parent),
+            module_root_dir=str(setup_env),
         )
 
 
@@ -79,7 +79,7 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env):
         csv_name=setup_csv_header_only.name,
         module_name=output_file.name,
         csv_root_dir=str(setup_env),
-        module_root_dir=str(module_dir.parent),
+        module_root_dir=str(setup_env),
     )
 
     with open(output_file, mode="r") as file:
@@ -132,7 +132,7 @@ def test_generate_paths_with_data(setup_csv_header_only, setup_env):
         csv_name=setup_csv_header_only.name,
         module_name=output_file.name,
         csv_root_dir=str(setup_env),
-        module_root_dir=str(module_dir.parent),
+        module_root_dir=str(setup_env),
     )
 
     with open(output_file, mode="r") as file:
@@ -188,7 +188,7 @@ def test_generate_paths_with_multiple_entries(setup_csv_header_only, setup_env):
         csv_name=setup_csv_header_only.name,
         module_name=output_file.name,
         csv_root_dir=str(setup_env),
-        module_root_dir=str(module_dir.parent),
+        module_root_dir=str(setup_env),
     )
 
     with open(output_file, mode="r") as file:

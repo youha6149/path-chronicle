@@ -1,13 +1,14 @@
 import csv
 from contextlib import redirect_stdout
 from io import StringIO
+from pathlib import Path
 
 import pytest
 
 from path_chronicle.fso_expansion import FsoExpansion
 
 
-def create_fso_expansion(csv_name, setup_env):
+def create_fso_expansion(csv_name: str, setup_env: Path) -> FsoExpansion:
     return FsoExpansion(
         csv_name=csv_name, csv_root_dir=str(setup_env), csv_dir_name="csv"
     )
@@ -22,8 +23,12 @@ def create_fso_expansion(csv_name, setup_env):
     ],
 )
 def test_load_paths_return_empty_paths_list(
-    setup_env, setup_empty_csv, setup_csv_header_only, csv_name, expected_paths
-):
+    setup_env: Path,
+    setup_empty_csv: Path,
+    setup_csv_header_only: Path,
+    csv_name: str,
+    expected_paths: list[dict],
+) -> None:
     """
     Test that load_paths correctly handles a CSV scenario
     where it should return an empty paths list.
@@ -53,7 +58,9 @@ def test_load_paths_return_empty_paths_list(
     ), f"Paths list should be {expected_paths} for {csv_name}."
 
 
-def test_load_paths_with_data(setup_csv_1_data, setup_env, setup_test_dir_paths):
+def test_load_paths_with_data(
+    setup_csv_1_data: Path, setup_env: Path, setup_test_dir_paths: list[dict]
+) -> None:
     """
     Test that FsoExpansion correctly loads path data from a CSV file.
 
@@ -64,7 +71,6 @@ def test_load_paths_with_data(setup_csv_1_data, setup_env, setup_test_dir_paths)
     Asserts:
         The paths list should contain the loaded data.
     """
-
     pm = create_fso_expansion(setup_csv_1_data.name, setup_env)
 
     assert len(pm.paths) == 1, "Paths list should contain one entry."
@@ -79,7 +85,7 @@ def test_load_paths_with_data(setup_csv_1_data, setup_env, setup_test_dir_paths)
     ), "Description should match the CSV data."
 
 
-def test_create_dir_and_save_csv(setup_csv_header_only, setup_env):
+def test_create_dir_and_save_csv(setup_csv_header_only: Path, setup_env: Path) -> None:
     """
     Test that FsoExpansion can create a directory and save its path to the CSV file.
 
@@ -95,6 +101,7 @@ def test_create_dir_and_save_csv(setup_csv_header_only, setup_env):
         "test_dir", str(setup_env), "Test directory description"
     )
 
+    assert new_dir is not None, "new_dir should not be None."
     assert new_dir.exists() and new_dir.is_dir(), "Directory should be created."
     assert (
         pm.paths[-1]["name"] == "test_dir"
@@ -116,7 +123,7 @@ def test_create_dir_and_save_csv(setup_csv_header_only, setup_env):
         ), "CSV should contain the correct description."
 
 
-def test_create_file_and_save_csv(setup_csv_header_only, setup_env):
+def test_create_file_and_save_csv(setup_csv_header_only: Path, setup_env: Path) -> None:
     """
     Test that FsoExpansion can create a file and save its path to the CSV file.
 
@@ -134,6 +141,7 @@ def test_create_file_and_save_csv(setup_csv_header_only, setup_env):
 
     rn_filename = "test_file_txt"
 
+    assert new_file is not None, "new_file should not be None."
     assert new_file.exists() and new_file.is_file(), "File should be created."
     assert (
         pm.paths[-1]["name"] == rn_filename
@@ -155,7 +163,7 @@ def test_create_file_and_save_csv(setup_csv_header_only, setup_env):
         ), "CSV should contain the correct description."
 
 
-def test_create_dir_no_save_csv(setup_csv_header_only, setup_env):
+def test_create_dir_no_save_csv(setup_csv_header_only: Path, setup_env: Path) -> None:
     """
     Test that FsoExpansion can create a directory without saving
     its path to the CSV file.
@@ -176,6 +184,7 @@ def test_create_dir_no_save_csv(setup_csv_header_only, setup_env):
         is_save_to_csv=False,
     )
 
+    assert new_dir is not None, "new_dir should not be None."
     assert new_dir.exists() and new_dir.is_dir(), "Directory should be created."
     assert not any(
         p["name"] == "test_dir_nosave" for p in pm.paths
@@ -187,7 +196,7 @@ def test_create_dir_no_save_csv(setup_csv_header_only, setup_env):
         assert len(rows) == 0, "CSV should remain empty."
 
 
-def test_create_file_no_save_csv(setup_csv_header_only, setup_env):
+def test_create_file_no_save_csv(setup_csv_header_only: Path, setup_env: Path) -> None:
     """
     Test that FsoExpansion can create a file without saving its path to the CSV file.
 
@@ -206,6 +215,7 @@ def test_create_file_no_save_csv(setup_csv_header_only, setup_env):
         is_save_to_csv=False,
     )
 
+    assert new_file is not None, "new_file should not be None."
     assert new_file.exists() and new_file.is_file(), "File should be created."
     assert not any(
         p["name"] == "test_file_nosave_txt" for p in pm.paths
@@ -217,7 +227,7 @@ def test_create_file_no_save_csv(setup_csv_header_only, setup_env):
         assert len(rows) == 0, "CSV should remain empty."
 
 
-def test_list_paths_empty(setup_csv_header_only, setup_env):
+def test_list_paths_empty(setup_csv_header_only: Path, setup_env: Path) -> None:
     """
     Test that FsoExpansion correctly lists paths when the CSV is empty.
 
@@ -236,7 +246,9 @@ def test_list_paths_empty(setup_csv_header_only, setup_env):
     assert "No paths saved in CSV." in output, "Should indicate no paths are saved."
 
 
-def test_list_paths_with_data(setup_csv_1_data, setup_test_dir_paths, setup_env):
+def test_list_paths_with_data(
+    setup_csv_1_data: Path, setup_test_dir_paths: list[dict], setup_env: Path
+) -> None:
     """
     Test that FsoExpansion correctly lists paths when the CSV contains data.
 
@@ -247,7 +259,6 @@ def test_list_paths_with_data(setup_csv_1_data, setup_test_dir_paths, setup_env)
     Asserts:
         The output should match the expected table format.
     """
-
     pm = create_fso_expansion(setup_csv_1_data.name, setup_env)
     f = StringIO()
     with redirect_stdout(f):
@@ -284,7 +295,9 @@ def test_list_paths_with_data(setup_csv_1_data, setup_test_dir_paths, setup_env)
     ), f"Output should match expected table format:\n{output}"
 
 
-def test_remove_dir_and_from_csv_with_subfiles(setup_csv_header_only, setup_env):
+def test_remove_dir_and_from_csv_with_subfiles(
+    setup_csv_header_only: Path, setup_env: Path
+) -> None:
     """
     Test that FsoExpansion can remove a directory and its subfiles.
 
@@ -330,8 +343,12 @@ def test_remove_dir_and_from_csv_with_subfiles(setup_csv_header_only, setup_env)
     ],
 )
 def test_remove_path_and_from_csv_all_arguments(
-    setup_csv_header_only, setup_env, remove_by, value, expected_paths
-):
+    setup_csv_header_only: Path,
+    setup_env: Path,
+    remove_by: str,
+    value: str | int,
+    expected_paths: list[dict],
+) -> None:
     """
     Test that FsoExpansion can remove a path by id, name, or path.
 
@@ -355,8 +372,12 @@ def test_remove_path_and_from_csv_all_arguments(
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
 
     if remove_by == "id":
+        if isinstance(value, str):
+            value = int(value)
         pm.remove_path_and_from_csv(id=value)
     elif remove_by == "name":
+        if isinstance(value, int):
+            value = str(value)
         pm.remove_path_and_from_csv(name=value)
     elif remove_by == "path":
         pm.remove_path_and_from_csv(path=str(test_dir))
@@ -377,7 +398,9 @@ def test_remove_path_and_from_csv_all_arguments(
     ), "The directory should be deleted from the file system."
 
 
-def test_remove_path_does_not_exist_arguments(setup_csv_1_data, setup_env):
+def test_remove_path_does_not_exist_arguments(
+    setup_csv_1_data: Path, setup_env: Path
+) -> None:
     """
     Test that FsoExpansion handles attempts to remove nonexistent paths.
 
@@ -388,7 +411,6 @@ def test_remove_path_does_not_exist_arguments(setup_csv_1_data, setup_env):
     Asserts:
         The output should indicate that no path was found with the given identifier.
     """
-
     test_dir = setup_env / "test_path"
     test_dir.mkdir(parents=True, exist_ok=True)
 
@@ -418,7 +440,9 @@ def test_remove_path_does_not_exist_arguments(setup_csv_1_data, setup_env):
     ), "Should indicate no path found with given path."
 
 
-def test_remove_path_empty_paths_list(setup_csv_header_only, setup_env):
+def test_remove_path_empty_paths_list(
+    setup_csv_header_only: Path, setup_env: Path
+) -> None:
     """
     Test that FsoExpansion empty paths list for remove path method.
 
@@ -429,7 +453,6 @@ def test_remove_path_empty_paths_list(setup_csv_header_only, setup_env):
     Asserts:
         The output should indicate that no processing is done
     """
-
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
     f = StringIO()
     with redirect_stdout(f):

@@ -5,6 +5,14 @@ import pytest
 from path_chronicle.generate_paths import generate_paths
 
 
+@pytest.fixture
+def setup_module_file(setup_env):
+    module_dir = setup_env / "path_module"
+    module_dir.mkdir(parents=True, exist_ok=True)
+    module_file = module_dir / "paths.py"
+    return module_file
+
+
 def test_generate_paths_nonexists_csv(setup_env):
     """
     Test the generate_paths function with a non-existent CSV file.
@@ -15,8 +23,7 @@ def test_generate_paths_nonexists_csv(setup_env):
     Asserts:
         ValueError is raised with appropriate message.
     """
-    module_dir = setup_env / "path_module"
-    module_dir.mkdir(parents=True, exist_ok=True)
+
     nonexists_csv_path = setup_env / "csv" / "nonexists.csv"
 
     with pytest.raises(
@@ -40,8 +47,6 @@ def test_generate_paths_empty_csv(setup_env):
     Asserts:
         ValueError is raised with appropriate message.
     """
-    module_dir = setup_env / "path_module"
-    module_dir.mkdir(parents=True, exist_ok=True)
 
     empty_csv_dir = setup_env / "csv"
     empty_csv_dir.mkdir(parents=True, exist_ok=True)
@@ -60,7 +65,7 @@ def test_generate_paths_empty_csv(setup_env):
         )
 
 
-def test_generate_paths_empty_data(setup_csv_header_only, setup_env):
+def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_module_file):
     """
     Test the generate_paths function with an empty data in CSV file.
 
@@ -72,17 +77,15 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env):
         The generated paths.py file content should match
         the expected content for an empty CSV.
     """
-    module_dir = setup_env / "path_module"
-    module_dir.mkdir(parents=True, exist_ok=True)
-    output_file = module_dir / "paths.py"
+
     generate_paths(
         csv_name=setup_csv_header_only.name,
-        module_name=output_file.name,
+        module_name=setup_module_file.name,
         csv_root_dir=str(setup_env),
         module_root_dir=str(setup_env),
     )
 
-    with open(output_file, mode="r") as file:
+    with open(setup_module_file, mode="r") as file:
         content = file.read()
 
     expected_content = (
@@ -109,7 +112,7 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env):
     ), "Generated paths.py content does not match expected content for empty CSV."
 
 
-def test_generate_paths_with_data(setup_csv_header_only, setup_env):
+def test_generate_paths_with_data(setup_csv_header_only, setup_env, setup_module_file):
     """
     Test the generate_paths function with a CSV file containing data.
 
@@ -125,17 +128,14 @@ def test_generate_paths_with_data(setup_csv_header_only, setup_env):
         writer = csv.writer(file)
         writer.writerow([1, "test_name", "/path/to/test", "Test path"])
 
-    module_dir = setup_env / "path_module"
-    module_dir.mkdir(parents=True, exist_ok=True)
-    output_file = module_dir / "paths.py"
     generate_paths(
         csv_name=setup_csv_header_only.name,
-        module_name=output_file.name,
+        module_name=setup_module_file.name,
         csv_root_dir=str(setup_env),
         module_root_dir=str(setup_env),
     )
 
-    with open(output_file, mode="r") as file:
+    with open(setup_module_file, mode="r") as file:
         content = file.read()
 
     expected_content = (
@@ -164,7 +164,9 @@ def test_generate_paths_with_data(setup_csv_header_only, setup_env):
     ), "Generated paths.py content does not match expected content for CSV with data."
 
 
-def test_generate_paths_with_multiple_entries(setup_csv_header_only, setup_env):
+def test_generate_paths_with_multiple_entries(
+    setup_csv_header_only, setup_env, setup_module_file
+):
     """
     Test the generate_paths function with a CSV file containing multiple entries.
 
@@ -181,17 +183,14 @@ def test_generate_paths_with_multiple_entries(setup_csv_header_only, setup_env):
         writer.writerow([1, "test_name1", "/path/to/test1", "Test path 1"])
         writer.writerow([2, "test_name2", "/path/to/test2", "Test path 2"])
 
-    module_dir = setup_env / "path_module"
-    module_dir.mkdir(parents=True, exist_ok=True)
-    output_file = module_dir / "paths.py"
     generate_paths(
         csv_name=setup_csv_header_only.name,
-        module_name=output_file.name,
+        module_name=setup_module_file.name,
         csv_root_dir=str(setup_env),
         module_root_dir=str(setup_env),
     )
 
-    with open(output_file, mode="r") as file:
+    with open(setup_module_file, mode="r") as file:
         content = file.read()
 
     expected_content = (

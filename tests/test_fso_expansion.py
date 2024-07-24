@@ -2,7 +2,49 @@ import csv
 from contextlib import redirect_stdout
 from io import StringIO
 
+import pytest
+
 from path_chronicle.fso_expansion import FsoExpansion
+
+
+@pytest.mark.parametrize(
+    "csv_name, expected_paths",
+    [
+        ("empty.csv", []),
+        ("nonexists.csv", []),
+        ("header_only.csv", []),
+    ],
+)
+def test_load_paths_return_empty_paths_list(
+    setup_env, setup_empty_csv, setup_csv_header_only, csv_name, expected_paths
+):
+    """
+    Test that load_paths correctly handles a CSV scenario
+    where it should return an empty paths list.
+
+    Args:
+        setup_env (Path): The temporary environment directory.
+        setup_empty_csv (Path): The path to the temporary CSV file.
+        setup_csv_header_only (Path): The path to the temporary header-only CSV file.
+        csv_name (str): The name of the CSV file to test.
+        expected_paths (list): The expected list of paths.
+
+    Asserts:
+        The paths list should match the expected paths.
+    """
+    if csv_name == "empty.csv":
+        csv_path = setup_empty_csv.name
+    elif csv_name == "header_only.csv":
+        csv_path = setup_csv_header_only.name
+    else:
+        csv_path = csv_name
+
+    pm = FsoExpansion(
+        csv_name=csv_path, csv_root_dir=str(setup_env), csv_dir_name="csv"
+    )
+    assert (
+        pm.paths == expected_paths
+    ), f"Paths list should be {expected_paths} for {csv_name}."
 
 
 def test_load_paths_empty_csv(setup_csv_header_only, setup_env):

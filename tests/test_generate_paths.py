@@ -113,12 +113,42 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
     ), "Generated paths.py content does not match expected content for empty CSV."
 
 
-def test_generate_paths_with_data(setup_csv_header_only, setup_env, setup_module_file):
+def generate_expected_content(paths: list[dict]) -> str:
+    lines = [
+        "from pathlib import Path\n",
+        "\n",
+        "class Paths:\n",
+        '    """\n',
+        "    This class provides paths for various project directories and files.\n",
+        '    """\n',
+        "\n",
+    ]
+
+    for path in paths:
+        lines.append(f"    {path['name']} = Path('{path['path']}')\n")
+    lines.append("\n    @staticmethod\n")
+    lines.append("    def get_path(name: str) -> Path:\n")
+    lines.append('        """\n')
+    lines.append("        Returns the Path object for the given name.\n")
+    lines.append("\n")
+    lines.append("        Available paths:\n")
+    for path in paths:
+        lines.append(f"        - {path['name']}: {path['path']}\n")
+    lines.append('        """\n')
+    lines.append("        return getattr(Paths, name, None)\n")
+
+    return "".join(lines)
+
+
+def test_generate_paths_with_data(
+    setup_csv_1_data, setup_test_dir_paths, setup_env, setup_module_file
+) -> None:
     """
     Test the generate_paths function with a CSV file containing data.
 
     Args:
-        setup_csv_header_only (Path): The path to the header only temporary CSV file.
+        setup_csv_1_data (Path): The path to the CSV file with data.
+        setup_test_dir_paths (list): A list of test directory paths.
         setup_env (Path): The temporary environment directory.
         setup_module_file (Path): The path to the module file.
 
@@ -126,12 +156,9 @@ def test_generate_paths_with_data(setup_csv_header_only, setup_env, setup_module
         The generated paths.py file content should match
         the expected content for a CSV with data.
     """
-    with open(setup_csv_header_only, mode="a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow([1, "test_name", "/path/to/test", "Test path"])
 
     generate_paths(
-        csv_name=setup_csv_header_only.name,
+        csv_name=setup_csv_1_data.name,
         module_name=setup_module_file.name,
         csv_root_dir=str(setup_env),
         module_root_dir=str(setup_env),
@@ -140,26 +167,7 @@ def test_generate_paths_with_data(setup_csv_header_only, setup_env, setup_module
     with open(setup_module_file, mode="r") as file:
         content = file.read()
 
-    expected_content = (
-        "from pathlib import Path\n"
-        "\n"
-        "class Paths:\n"
-        '    """\n'
-        "    This class provides paths for various project directories and files.\n"
-        '    """\n'
-        "\n"
-        "    test_name = Path('/path/to/test')\n"
-        "\n"
-        "    @staticmethod\n"
-        "    def get_path(name: str) -> Path:\n"
-        '        """\n'
-        "        Returns the Path object for the given name.\n"
-        "\n"
-        "        Available paths:\n"
-        "        - test_name: /path/to/test\n"
-        '        """\n'
-        "        return getattr(Paths, name, None)\n"
-    )
+    expected_content = generate_expected_content(setup_test_dir_paths)
 
     assert (
         content == expected_content
@@ -181,10 +189,24 @@ def test_generate_paths_with_multiple_entries(
         The generated paths.py file content should match
         the expected content for a CSV with multiple entries.
     """
+    paths = [
+        {
+            "id": 1,
+            "name": "test_name1",
+            "path": "/path/to/test1",
+            "description": "Test path 1",
+        },
+        {
+            "id": 2,
+            "name": "test_name2",
+            "path": "/path/to/test2",
+            "description": "Test path 2",
+        },
+    ]
     with open(setup_csv_header_only, mode="a", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow([1, "test_name1", "/path/to/test1", "Test path 1"])
-        writer.writerow([2, "test_name2", "/path/to/test2", "Test path 2"])
+        for path in paths:
+            writer.writerow(list(path.values()))
 
     generate_paths(
         csv_name=setup_csv_header_only.name,
@@ -196,28 +218,7 @@ def test_generate_paths_with_multiple_entries(
     with open(setup_module_file, mode="r") as file:
         content = file.read()
 
-    expected_content = (
-        "from pathlib import Path\n"
-        "\n"
-        "class Paths:\n"
-        '    """\n'
-        "    This class provides paths for various project directories and files.\n"
-        '    """\n'
-        "\n"
-        "    test_name1 = Path('/path/to/test1')\n"
-        "    test_name2 = Path('/path/to/test2')\n"
-        "\n"
-        "    @staticmethod\n"
-        "    def get_path(name: str) -> Path:\n"
-        '        """\n'
-        "        Returns the Path object for the given name.\n"
-        "\n"
-        "        Available paths:\n"
-        "        - test_name1: /path/to/test1\n"
-        "        - test_name2: /path/to/test2\n"
-        '        """\n'
-        "        return getattr(Paths, name, None)\n"
-    )
+    expected_content = generate_expected_content(paths)
 
     assert (
         content == expected_content

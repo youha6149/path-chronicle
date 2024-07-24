@@ -58,7 +58,7 @@ def setup_csv_header_only(setup_empty_csv):
 
 
 @pytest.fixture
-def setup_csv_1_data(setup_csv_header_only):
+def setup_csv_1_data(setup_csv_header_only, setup_test_dir_paths):
     """
     Fixture to create a header and 1 data temporary CSV file for testing.
 
@@ -71,6 +71,29 @@ def setup_csv_1_data(setup_csv_header_only):
 
     with open(setup_csv_header_only, mode="a", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow([1, "test_name", "test_path", "test_description"])
+        writer.writerow(setup_test_dir_paths[0].values())
 
     return setup_csv_header_only
+
+
+@pytest.fixture
+def setup_test_dir_paths(tmp_path) -> list[dict]:
+    """
+    Fixture to create a list of test directory paths.
+
+    Args:
+        tmp_path (Path): Temporary directory path provided by pytest.
+
+    Returns:
+        list[dict]: A list of dictionaries containing the test directory paths.
+    """
+
+    test_path = tmp_path / "test_dir"
+    return [
+        {
+            "id": 1,
+            "name": "test_dir",
+            "path": str(test_path),
+            "description": "test_dir_description",
+        }
+    ]

@@ -47,7 +47,7 @@ def test_load_paths_return_empty_paths_list(
     ), f"Paths list should be {expected_paths} for {csv_name}."
 
 
-def test_load_paths_with_data(setup_csv_header_only, setup_env):
+def test_load_paths_with_data(setup_csv_1_data, setup_env, setup_test_dir_paths):
     """
     Test that FsoExpansion correctly loads path data from a CSV file.
 
@@ -58,20 +58,22 @@ def test_load_paths_with_data(setup_csv_header_only, setup_env):
     Asserts:
         The paths list should contain the loaded data.
     """
-    with open(setup_csv_header_only, mode="a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["1", "test_name", "test_path", "test_description"])
 
     pm = FsoExpansion(
-        csv_name=setup_csv_header_only.name,
+        csv_name=setup_csv_1_data.name,
         csv_root_dir=str(setup_env),
         csv_dir_name="csv",
     )
+
     assert len(pm.paths) == 1, "Paths list should contain one entry."
-    assert pm.paths[0]["name"] == "test_name", "Name should match the CSV data."
-    assert pm.paths[0]["path"] == "test_path", "Path should match the CSV data."
     assert (
-        pm.paths[0]["description"] == "test_description"
+        pm.paths[0]["name"] == setup_test_dir_paths[0]["name"]
+    ), "Name should match the CSV data."
+    assert (
+        pm.paths[0]["path"] == setup_test_dir_paths[0]["path"]
+    ), "Path should match the CSV data."
+    assert (
+        pm.paths[0]["description"] == setup_test_dir_paths[0]["description"]
     ), "Description should match the CSV data."
 
 
@@ -252,7 +254,7 @@ def test_list_paths_empty(setup_csv_header_only, setup_env):
     assert "No paths saved in CSV." in output, "Should indicate no paths are saved."
 
 
-def test_list_paths_with_data(setup_csv_header_only, setup_env):
+def test_list_paths_with_data(setup_csv_1_data, setup_test_dir_paths, setup_env):
     """
     Test that FsoExpansion correctly lists paths when the CSV contains data.
 
@@ -263,12 +265,9 @@ def test_list_paths_with_data(setup_csv_header_only, setup_env):
     Asserts:
         The output should match the expected table format.
     """
-    with open(setup_csv_header_only, mode="a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["1", "test_name", "test_path", "test_description"])
 
     pm = FsoExpansion(
-        csv_name=setup_csv_header_only.name,
+        csv_name=setup_csv_1_data.name,
         csv_root_dir=str(setup_env),
         csv_dir_name="csv",
     )
@@ -276,12 +275,32 @@ def test_list_paths_with_data(setup_csv_header_only, setup_env):
     with redirect_stdout(f):
         pm.list_paths()
     output = f.getvalue()
-    expected_output = (
-        "ID | Name      | Path      | Description     \n"
-        "---+-----------+-----------+-----------------\n"
-        "1  | test_name | test_path | test_description\n"
-        "\n"
+    headers = ["ID", "Name", "Path", "Description"]
+    rows = [
+        (
+            str(1),
+            setup_test_dir_paths[0]["name"],
+            setup_test_dir_paths[0]["path"],
+            setup_test_dir_paths[0]["description"],
+        )
+    ]
+
+    col_widths = [len(header) for header in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            col_widths[i] = max(col_widths[i], len(cell))
+
+    header_row = " | ".join(
+        f"{header:{col_widths[i]}}" for i, header in enumerate(headers)
     )
+    separator = "-+-".join("-" * width for width in col_widths)
+
+    data_rows = "\n".join(
+        " | ".join(f"{cell:{col_widths[i]}}" for i, cell in enumerate(row))
+        for row in rows
+    )
+
+    expected_output = f"{header_row}\n{separator}\n{data_rows}\n\n"
     assert (
         output == expected_output
     ), f"Output should match expected table format:\n{output}"
@@ -388,7 +407,7 @@ def test_remove_path_and_from_csv_all_arguments(
     ), "The directory should be deleted from the file system."
 
 
-def test_remove_path_does_not_exist_arguments(setup_csv_header_only, setup_env):
+def test_remove_path_does_not_exist_arguments(setup_csv_1_data, setup_env):
     """
     Test that FsoExpansion handles attempts to remove nonexistent paths.
 
@@ -403,12 +422,8 @@ def test_remove_path_does_not_exist_arguments(setup_csv_header_only, setup_env):
     test_dir = setup_env / "test_path"
     test_dir.mkdir(parents=True, exist_ok=True)
 
-    with open(setup_csv_header_only, mode="a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["1", "test_name", str(test_dir), "test_description"])
-
     pm = FsoExpansion(
-        csv_name=setup_csv_header_only.name,
+        csv_name=setup_csv_1_data.name,
         csv_root_dir=str(setup_env),
         csv_dir_name="csv",
     )

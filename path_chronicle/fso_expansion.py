@@ -58,7 +58,11 @@ class FsoExpansion:
         try:
             with open(self.csv_file, mode="r") as file:
                 reader = csv.DictReader(file)
-                for row in reader:
+                rows = list(reader)
+                if not rows:
+                    print("CSV file only contains headers. Returning empty paths list.")
+                    return paths
+                for row in rows:
                     paths.append(
                         {
                             "id": int(row["id"]),

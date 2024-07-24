@@ -55,3 +55,22 @@ def setup_csv_header_only(setup_empty_csv):
         writer = csv.writer(file)
         writer.writerow(["id", "name", "path", "description"])
     return setup_empty_csv
+
+
+@pytest.fixture
+def setup_csv_1_data(setup_csv_header_only):
+    """
+    Fixture to create a header and 1 data temporary CSV file for testing.
+
+    Args:
+        setup_csv_header_only (Path): The path to the empty CSV file.
+
+    Returns:
+        Path: The path to the created header and 1 data temporary CSV file.
+    """
+
+    with open(setup_csv_header_only, mode="a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow([1, "test_name", "test_path", "test_description"])
+
+    return setup_csv_header_only

@@ -72,6 +72,7 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
     Args:
         setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
+        setup_module_file (Path): The path to the module file.
 
     Asserts:
         The generated paths.py file content should match
@@ -119,6 +120,7 @@ def test_generate_paths_with_data(setup_csv_header_only, setup_env, setup_module
     Args:
         setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
+        setup_module_file (Path): The path to the module file.
 
     Asserts:
         The generated paths.py file content should match
@@ -173,6 +175,7 @@ def test_generate_paths_with_multiple_entries(
     Args:
         setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
+        setup_module_file (Path): The path to the module file.
 
     Asserts:
         The generated paths.py file content should match

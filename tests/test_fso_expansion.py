@@ -47,41 +47,6 @@ def test_load_paths_return_empty_paths_list(
     ), f"Paths list should be {expected_paths} for {csv_name}."
 
 
-def test_load_paths_empty_csv(setup_csv_header_only, setup_env):
-    """
-    Test that FsoExpansion correctly handles an empty CSV file.
-
-    Args:
-        setup_csv_header_only (Path): The path to the header only temporary CSV file.
-        setup_env (Path): The temporary environment directory.
-
-    Asserts:
-        The paths list should be empty for an empty CSV file.
-    """
-    pm = FsoExpansion(
-        csv_name=setup_csv_header_only.name,
-        csv_root_dir=str(setup_env),
-        csv_dir_name="csv",
-    )
-    assert pm.paths == [], "Paths list should be empty for an empty CSV."
-
-
-def test_load_paths_nonexists_csv(setup_env):
-    """
-    Test that FsoExpansion correctly handles an nonexists CSV file.
-
-    Args:
-        setup_env (Path): The temporary environment directory.
-
-    Asserts:
-        The paths list should be empty for not exists CSV file.
-    """
-    pm = FsoExpansion(
-        csv_name="nonexists.csv", csv_root_dir=str(setup_env), csv_dir_name="csv"
-    )
-    assert pm.paths == [], "Paths list should be empty for an empty CSV."
-
-
 def test_load_paths_with_data(setup_csv_header_only, setup_env):
     """
     Test that FsoExpansion correctly loads path data from a CSV file.

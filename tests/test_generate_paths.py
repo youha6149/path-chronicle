@@ -43,9 +43,64 @@ def setup_env(tmp_path):
     os.chdir(original_dir)
 
 
-def test_generate_paths_empty_csv(setup_csv, setup_env):
+def test_generate_paths_nonexists_csv(setup_env):
+    """
+    Test the generate_paths function with a non-existent CSV file.
+
+    Args:
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        ValueError is raised with appropriate message.
+    """
+    module_dir = setup_env / "path_module"
+    module_dir.mkdir(parents=True, exist_ok=True)
+    nonexists_csv_path = setup_env / "csv" / "nonexists.csv"
+
+    with pytest.raises(
+        ValueError, match=f"CSV file does not exist or is empty: {nonexists_csv_path}"
+    ):
+        generate_paths(
+            csv_name="nonexists.csv",
+            module_name="paths.py",
+            csv_root_dir=str(setup_env),
+            module_root_dir=str(module_dir.parent),
+        )
+
+
+def test_generate_paths_empty_csv(setup_env):
     """
     Test the generate_paths function with an empty CSV file.
+
+    Args:
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        ValueError is raised with appropriate message.
+    """
+    module_dir = setup_env / "path_module"
+    module_dir.mkdir(parents=True, exist_ok=True)
+
+    empty_csv_dir = setup_env / "csv"
+    empty_csv_dir.mkdir(parents=True, exist_ok=True)
+
+    empty_csv_path = empty_csv_dir / "empty.csv"
+    empty_csv_path.touch()
+
+    with pytest.raises(
+        ValueError, match=f"CSV file does not exist or is empty: {empty_csv_path}"
+    ):
+        generate_paths(
+            csv_name="empty.csv",
+            module_name="paths.py",
+            csv_root_dir=str(setup_env),
+            module_root_dir=str(module_dir.parent),
+        )
+
+
+def test_generate_paths_empty_data(setup_csv, setup_env):
+    """
+    Test the generate_paths function with an empty data in CSV file.
 
     Args:
         setup_csv (Path): The path to the temporary CSV file.

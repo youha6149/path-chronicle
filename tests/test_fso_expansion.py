@@ -328,6 +328,66 @@ def test_remove_dir_and_from_csv_with_subfiles(setup_csv_header_only, setup_env)
         ), "CSV should be empty after removing the directory with subfiles."
 
 
+@pytest.mark.parametrize(
+    "remove_by, value, expected_paths",
+    [
+        ("id", 1, []),
+        ("name", "test_name", []),
+        ("path", "test_path", []),
+    ],
+)
+def test_remove_path_and_from_csv_all_arguments(
+    setup_csv_header_only, setup_env, remove_by, value, expected_paths
+):
+    """
+    Test that FsoExpansion can remove a path by id, name, or path.
+
+    Args:
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+        remove_by (str): The attribute to remove by ("id", "name", or "path").
+        value (str or int): The value of the attribute to remove.
+        expected_paths (list): The expected list of paths.
+
+    Asserts:
+        The path should be removed from the paths list and the CSV file.
+    """
+    test_dir = setup_env / "test_path"
+    test_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(setup_csv_header_only, mode="a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow([1, "test_name", str(test_dir), "test_description"])
+
+    pm = FsoExpansion(
+        csv_name=setup_csv_header_only.name,
+        csv_root_dir=str(setup_env),
+        csv_dir_name="csv",
+    )
+
+    if remove_by == "id":
+        pm.remove_path_and_from_csv(id=value)
+    elif remove_by == "name":
+        pm.remove_path_and_from_csv(name=value)
+    elif remove_by == "path":
+        pm.remove_path_and_from_csv(path=str(test_dir))
+
+    assert (
+        pm.paths == expected_paths
+    ), f"Paths list should be {expected_paths} after removing the path by {remove_by}."
+
+    with open(pm.csv_file, mode="r") as file:
+        reader = csv.DictReader(file)
+        rows = list(reader)
+        assert (
+            rows == expected_paths
+        ), f"CSV should be {expected_paths} after removing the path by {remove_by}."
+
+    assert (
+        not test_dir.exists()
+    ), "The directory should be deleted from the file system."
+
+
 def test_remove_path_and_from_csv_by_id(setup_csv_header_only, setup_env):
     """
     Test that FsoExpansion can remove a path by ID.

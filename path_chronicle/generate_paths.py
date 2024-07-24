@@ -42,8 +42,9 @@ def generate_paths(
     )
     csv_path = csv_dir / csv_name
 
-    if not csv_path.exists():
-        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+    if not csv_path.exists() or csv_path.stat().st_size == 0:
+        e = f"CSV file does not exist or is empty: {csv_path}"
+        raise ValueError(e)
 
     module_dir = (
         Path(module_root_dir) / module_dir_name

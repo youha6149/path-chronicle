@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+from path_chronicle.schema import PathEntry
+
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -87,7 +89,7 @@ def test_list_paths_entry(setup_csv_header_only, setup_env):
     output = run_command(command, cwd=PROJECT_ROOT)
 
     lines = output.split("\n")
-    expected_headers = ["ID", "Name", "Path", "Description"]
+    expected_headers = list(PathEntry.__annotations__.keys())
     for header in expected_headers:
         assert (
             header in lines[0]

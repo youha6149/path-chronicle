@@ -34,10 +34,10 @@ class Config:
         Returns:
             Path: The path to the config file.
         """
-        if self.package_root is not None:
-            config_dir = self.package_root / "config"
-        else:
-            config_dir = Path("config")
+        if self.package_root is None:
+            raise ValueError("Package root directory not set.")
+
+        config_dir = self.package_root / "config"
         config_dir.mkdir(exist_ok=True)
         return config_dir / "config.json"
 

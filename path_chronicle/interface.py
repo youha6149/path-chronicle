@@ -1,6 +1,9 @@
 import argparse
+import os
 import sys
+from pathlib import Path
 
+from path_chronicle.config import Config
 from path_chronicle.fso_expansion import FsoExpansion
 from path_chronicle.generate_paths import generate_paths
 
@@ -244,3 +247,29 @@ def generate_paths_entry():
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}", file=sys.stderr)
+
+
+def set_project_root_entry():
+    """
+    Set the project root directory to config file.
+
+    Example usage:
+        poetry run pcsetprojectroot /path/to/project
+    """
+    try:
+        parser = argparse.ArgumentParser(
+            description="Set the project root directory to config file."
+        )
+        parser.add_argument("value", help="The value to set")
+        parser.add_argument(
+            "--config_root_dir",
+            default=None,
+            help="Root directory where the config file is located",
+        )
+        args = parser.parse_args()
+
+        config = Config(Path(args.config_root_dir))
+        config.set("project_root", args.value)
+
+    except Exception as e:
+        print(f"Error in set_project_root_entry function: {e}", file=sys.stderr)

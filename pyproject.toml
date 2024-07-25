@@ -16,6 +16,8 @@ pctouch = 'path_chronicle.interface:create_file_and_save_csv_entry'
 pcpathslist = 'path_chronicle.interface:list_paths_entry'
 pcrmpath = 'path_chronicle.interface:remove_path_and_from_csv_entry'
 gpaths = 'path_chronicle.interface:generate_paths_entry'
+pcsetpjroot = 'path_chronicle.interface:set_project_root_entry'
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"

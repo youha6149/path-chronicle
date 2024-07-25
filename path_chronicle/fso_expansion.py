@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 from pydantic import ValidationError
 
-from path_chronicle.schema import PathEntry, check_header, normalize_name
+from path_chronicle.schema import PathEntry, check_header
 from path_chronicle.utils import get_package_root
 
 
@@ -72,7 +72,6 @@ class FsoExpansion:
                 try:
                     row_data = row.to_dict()
                     row_data["id"] = int(row_data["id"])
-                    row_data["name"] = normalize_name(row_data["name"])
                     path_entry = PathEntry(**row_data)
                     paths.append(path_entry.model_dump())
 
@@ -135,7 +134,7 @@ class FsoExpansion:
 
             path_entry = PathEntry(
                 id=max([p["id"] for p in self.paths], default=0) + 1,
-                name=normalize_name(name),
+                name=name,
                 path=str(new_path),
                 description=description,
             )

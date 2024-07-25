@@ -73,7 +73,7 @@ class PathEntry(BaseModel):
 
         """
         path_sep = "/"
-        invalid_chars = set(" !@#$%^&*()-+=[]{}|\\:;'\",.<>?`~")
+        invalid_chars = set(" !@#$%^&*()-+=[]{}|\\:;'\",<>?`~")
 
         if any(char in invalid_chars for char in v):
             raise ValueError(f"name must not contain invalid chars: {invalid_chars}")

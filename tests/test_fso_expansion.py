@@ -159,12 +159,10 @@ def test_create_file_and_save_csv(setup_csv_header_only: Path, setup_env: Path) 
         "test_file.txt", str(setup_env), "Test file description"
     )
 
-    rn_filename = "test_file_txt"
-
     assert new_file is not None, "new_file should not be None."
     assert new_file.exists() and new_file.is_file(), "File should be created."
     assert (
-        pm.paths[-1]["name"] == rn_filename
+        pm.paths[-1]["name"] == new_file.name
     ), "Path name should be saved in the paths list."
     assert pm.paths[-1]["path"] == str(
         new_file
@@ -176,7 +174,7 @@ def test_create_file_and_save_csv(setup_csv_header_only: Path, setup_env: Path) 
     with open(pm.csv_file, mode="r") as file:
         reader = csv.DictReader(file)
         rows = list(reader)
-        assert rows[0]["name"] == rn_filename, "CSV should contain the file name."
+        assert rows[0]["name"] == new_file.name, "CSV should contain the file name."
         assert rows[0]["path"] == str(new_file), "CSV should contain the correct path."
         assert (
             rows[0]["description"] == "Test file description"

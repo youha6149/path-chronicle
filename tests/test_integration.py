@@ -174,7 +174,7 @@ def test_set_pj_root_entry(setup_config_file, setup_env):
     Asserts:
         The project root directory should be set and the output should indicate success.
     """
-    test_project_root_path = "/new/path/to/project"
+    test_project_root_path = "path_chronicle"
 
     command = f"poetry run pcsetpjroot {test_project_root_path} --config_root_dir {str(setup_env)}"
     run_command(command, cwd=PROJECT_ROOT)

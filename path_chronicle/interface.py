@@ -269,7 +269,7 @@ def set_project_root_entry():
         args = parser.parse_args()
 
         config = Config(Path(args.config_root_dir))
-        config.set("project_root", args.value)
+        config.set_project_root(args.value)
 
     except Exception as e:
         print(f"Error in set_project_root_entry function: {e}", file=sys.stderr)

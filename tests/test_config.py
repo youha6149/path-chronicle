@@ -1,6 +1,9 @@
 import json
+from pathlib import Path
 
 from path_chronicle.config import Config
+
+ABS_PATH = Path().cwd()
 
 
 def test_load_config_nonexistent_file(setup_env):
@@ -85,4 +88,60 @@ def test_set_config_value(setup_config_file, setup_env):
         config_data = json.load(file)
         assert (
             config_data["project_root"] == "/new/path/to/project"
+        ), "Config file should contain the newly set value."
+
+
+def test_set_project_root_from_relative(setup_env):
+    """
+    Test setting the project root directory to an absolute path.
+
+    Args:
+        setup_env (Path): The temporary environment directory.
+
+    Assert:
+        The project root should be set to the absolute path.
+    """
+    config = Config(package_root=setup_env)
+    config.set_project_root("project_root")
+
+    actual_project_root = Path(config.get("project_root"))
+    expected_project_root = Path("project_root").resolve()
+    assert (
+        actual_project_root == expected_project_root
+    ), "Should return the newly set value for project_root. "
+    f"Expected: {expected_project_root}, but got: {actual_project_root}"
+
+    config_file = config.get_config_file()
+    with open(config_file, "r") as file:
+        config_data = json.load(file)
+        assert config_data["project_root"] == str(
+            expected_project_root
+        ), "Config file should contain the newly set value."
+
+
+def test_set_project_root_from_absolute(setup_env):
+    """
+    Test setting the project root directory to an absolute path.
+
+    Args:
+        setup_env (Path): The temporary environment directory.
+
+    Assert:
+        The project root should be set to the absolute path
+    """
+    config = Config(package_root=setup_env)
+    config.set_project_root(setup_env.resolve())
+
+    actual_project_root = Path(config.get("project_root"))
+    expected_project_root = setup_env.resolve()
+    assert (
+        actual_project_root == expected_project_root
+    ), "Should return the newly set value for project_root. "
+    f"Expected: {expected_project_root}, but got: {actual_project_root}"
+
+    config_file = config.get_config_file()
+    with open(config_file, "r") as file:
+        config_data = json.load(file)
+        assert config_data["project_root"] == str(
+            expected_project_root
         ), "Config file should contain the newly set value."

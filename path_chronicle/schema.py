@@ -130,3 +130,18 @@ def check_header(header: list[str]) -> bool:
             print(e, file=sys.stderr)
             return False
     return True
+
+
+def normalize_name(name: str) -> str:
+    """
+    Normalize the name by replacing dots with underscores, except the leading dot.
+
+    Args:
+        name (str): The original name.
+
+    Returns:
+        str: The normalized name.
+    """
+    if name.startswith("."):
+        return "." + name[1:].replace(".", "_")
+    return name.replace(".", "_")

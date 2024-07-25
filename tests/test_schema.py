@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from path_chronicle.schema import PathEntry, check_header
+from path_chronicle.schema import PathEntry, check_header, normalize_name
 
 
 def test_id_must_be_positive():
@@ -70,3 +70,23 @@ def test_check_header_invalid_headers(setup_test_dir_paths):
     header = list(setup_test_dir_paths[0].keys())
     header[3] = "desc"
     assert not check_header(header)
+
+
+def test_normalize_name_no_dot():
+    name = "test"
+    assert normalize_name(name) == name
+
+
+def test_normalize_name_leading_dot():
+    name = ".test"
+    assert normalize_name(name) == name
+
+
+def test_normalize_name_single_dot():
+    name = "test.test"
+    assert normalize_name(name) == "test_test"
+
+
+def test_normalize_name_multiple_dots():
+    name = "test.test.test"
+    assert normalize_name(name) == "test_test_test"

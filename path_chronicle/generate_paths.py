@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 from pydantic import ValidationError
 
-from path_chronicle.schema import PathEntry, check_header
+from path_chronicle.schema import PathEntry, check_header, normalize_name
 from path_chronicle.utils import get_package_root
 
 
@@ -84,7 +84,7 @@ def generate_paths(
     lines.append('    """\n\n')
 
     for name, path in paths.items():
-        lines.append(f"    {name} = Path('{path}')\n")
+        lines.append(f"    {normalize_name(name)} = Path('{path}')\n")
 
     lines.append("\n    @staticmethod\n")
     lines.append("    def get_path(name: str) -> Path:\n")
@@ -93,7 +93,7 @@ def generate_paths(
     lines.append("        Available paths:\n")
 
     for name, path in paths.items():
-        lines.append(f"        - {name}: {path}\n")
+        lines.append(f"        - {normalize_name(name)}: {path}\n")
 
     lines.append('        """\n')
     lines.append("        return getattr(Paths, name, None)\n")

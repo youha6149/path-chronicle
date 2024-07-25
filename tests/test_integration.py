@@ -124,7 +124,7 @@ def test_remove_path_entry(setup_csv_header_only, setup_env):
     assert not os.path.exists(os.path.join(setup_env, "test_dir"))
 
     # memo: When saving the file name to csv, "." will be replaced with "_".
-    rn_test_file_txt = "test_file.txt".replace(".", "_")
+    rn_test_file_txt = "test_file.txt"
     command = f"poetry run pcrmpath --name {rn_test_file_txt} --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv"
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path deleted:" in output

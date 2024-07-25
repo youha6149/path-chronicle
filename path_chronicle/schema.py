@@ -4,6 +4,17 @@ from pydantic import BaseModel, field_validator
 
 
 class PathEntry(BaseModel):
+    """
+    Represents an entry in the path chronicle.
+
+    Attributes:
+        id (int): The unique identifier for the path entry.
+        name (str): The name of file or directory associated with the entry.
+        path (str): The path of from the root directory to the file or directory,
+                    or absolute path.
+        description (str, optional): The description of the path entry.
+    """
+
     id: int
     name: str
     path: str
@@ -11,18 +22,56 @@ class PathEntry(BaseModel):
 
     @field_validator("id")
     def id_must_be_positive(cls, v):
+        """
+        Validates that the given ID is a positive integer.
+
+        Args:
+            v (int): The ID to be validated.
+
+        Raises:
+            ValueError: If the ID is not a positive integer.
+
+        Returns:
+            int: The validated ID.
+
+        """
         if v < 0:
             raise ValueError("id must be positive")
         return v
 
     @field_validator("name")
     def name_must_not_be_empty(cls, v):
+        """
+        Validates that the name is not empty.
+
+        Args:
+            v (str): The name to be validated.
+
+        Raises:
+            ValueError: If the name is empty.
+
+        Returns:
+            str: The validated name.
+        """
         if not v:
             raise ValueError("name must not be empty")
         return v
 
     @field_validator("name")
     def name_must_not_contain_invalid_chars(cls, v):
+        """
+        Validates that the given name does not contain any invalid characters.
+
+        Args:
+            v (str): The name to be validated.
+
+        Raises:
+            ValueError: If the name contains any invalid characters or if it is a path.
+
+        Returns:
+            str: The validated name.
+
+        """
         path_sep = "/"
         invalid_chars = set(" !@#$%^&*()-+=[]{}|\\:;'\",.<>?`~")
 
@@ -35,6 +84,18 @@ class PathEntry(BaseModel):
 
     @field_validator("path")
     def path_must_not_be_empty(cls, v):
+        """
+        Validates that the path is not empty.
+
+        Args:
+            v (str): The path to be validated.
+
+        Raises:
+            ValueError: If the path is empty.
+
+        Returns:
+            str: The validated path.
+        """
         if not v:
             raise ValueError("path must not be empty")
         return v

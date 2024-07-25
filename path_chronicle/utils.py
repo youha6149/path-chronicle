@@ -2,7 +2,7 @@ import importlib.util
 from pathlib import Path
 
 
-def get_package_root():
+def get_package_root() -> Path | None:
     """
     Returns the root directory of the current package.
 

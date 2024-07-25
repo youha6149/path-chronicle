@@ -77,38 +77,15 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
         the expected content for an empty CSV.
     """
 
-    generate_paths(
-        csv_name=setup_csv_header_only.name,
-        module_name=setup_module_file.name,
-        csv_root_dir=str(setup_env),
-        module_root_dir=str(setup_env),
-    )
+    with pytest.raises(ValueError) as exc_info:
+        generate_paths(
+            csv_name=setup_csv_header_only.name,
+            module_name=setup_module_file.name,
+            csv_root_dir=str(setup_env),
+            module_root_dir=str(setup_env),
+        )
 
-    with open(setup_module_file, mode="r") as file:
-        content = file.read()
-
-    expected_content = (
-        "from pathlib import Path\n"
-        "\n"
-        "class Paths:\n"
-        '    """\n'
-        "    This class provides paths for various project directories and files.\n"
-        '    """\n'
-        "\n"
-        "\n"
-        "    @staticmethod\n"
-        "    def get_path(name: str) -> Path:\n"
-        '        """\n'
-        "        Returns the Path object for the given name.\n"
-        "\n"
-        "        Available paths:\n"
-        '        """\n'
-        "        return getattr(Paths, name, None)\n"
-    )
-
-    assert (
-        content == expected_content
-    ), "Generated paths.py content does not match expected content for empty CSV."
+    assert "empty CSV file" in str(exc_info.value)
 
 
 def generate_expected_content(paths: list[dict]) -> str:

@@ -3,6 +3,7 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+from path_chronicle.schema import PathEntry, check_header
 from path_chronicle.utils import get_package_root
 
 
@@ -60,17 +61,19 @@ class FsoExpansion:
                 reader = csv.DictReader(file)
                 rows = list(reader)
                 if not rows:
+                    if not check_header(list(reader.fieldnames or [])):
+                        raise ValueError("Invalid header in CSV file.")
+
                     print("CSV file only contains headers. Returning empty paths list.")
                     return paths
                 for row in rows:
-                    paths.append(
-                        {
-                            "id": int(row["id"]),
-                            "name": row["name"],
-                            "path": row["path"],
-                            "description": row["description"],
-                        }
+                    path_entry = PathEntry(
+                        id=int(row["id"]),
+                        name=row["name"],
+                        path=row["path"],
+                        description=row["description"],
                     )
+                    paths.append(path_entry.model_dump())
 
         except Exception as e:
             print(f"Error reading CSV file: {e}", file=sys.stderr)
@@ -83,7 +86,7 @@ class FsoExpansion:
         """
         try:
             with open(self.csv_file, mode="w", newline="") as file:
-                fieldnames = ["id", "name", "path", "description"]
+                fieldnames = list(PathEntry.model_fields.keys())
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 writer.writeheader()
                 for path_info in self.paths:
@@ -123,15 +126,15 @@ class FsoExpansion:
 
             if is_save_to_csv:
                 self._print_csv_path()
-                new_id = max([p["id"] for p in self.paths], default=0) + 1
-                self.paths.append(
-                    {
-                        "id": new_id,
-                        "name": name.replace(".", "_"),
-                        "path": str(new_path),
-                        "description": description,
-                    }
+
+                path_entry = PathEntry(
+                    id=max([p["id"] for p in self.paths], default=0) + 1,
+                    name=name.replace(".", "_"),
+                    path=str(new_path),
+                    description=description,
                 )
+
+                self.paths.append(path_entry.model_dump())
                 self._save_paths()
 
             return new_path
@@ -279,7 +282,7 @@ class FsoExpansion:
             print("No paths saved in CSV.")
         else:
             self._print_table(
-                ["ID", "Name", "Path", "Description"],
+                list(PathEntry.model_fields.keys()),
                 [
                     (str(p["id"]), p["name"], p["path"], p["description"])
                     for p in self.paths

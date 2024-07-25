@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from path_chronicle.fso_expansion import FsoExpansion
+from path_chronicle.schema import PathEntry
 
 
 def create_fso_expansion(csv_name: str, setup_env: Path) -> FsoExpansion:
@@ -264,7 +265,7 @@ def test_list_paths_with_data(
     with redirect_stdout(f):
         pm.list_paths()
     output = f.getvalue()
-    headers = ["ID", "Name", "Path", "Description"]
+    headers = list(PathEntry.model_fields.keys())
     rows = [
         (
             str(1),

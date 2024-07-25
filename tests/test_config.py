@@ -1,20 +1,6 @@
 import json
-from pathlib import Path
-
-import pytest
 
 from path_chronicle.config import Config
-
-
-@pytest.fixture
-def setup_config_file(setup_env) -> Path:
-    """
-    Fixture to set up a temporary config file.
-    """
-    config_dir = setup_env / "config"
-    config_dir.mkdir(exist_ok=True)
-    config_file = config_dir / "config.json"
-    return config_file
 
 
 def test_load_config_nonexistent_file(setup_env):

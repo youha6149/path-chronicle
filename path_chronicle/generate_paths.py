@@ -1,6 +1,9 @@
-import csv
 from pathlib import Path
 
+import pandas as pd
+from pydantic import ValidationError
+
+from path_chronicle.schema import PathEntry, check_header
 from path_chronicle.utils import get_package_root
 
 
@@ -43,8 +46,7 @@ def generate_paths(
     csv_path = csv_dir / csv_name
 
     if not csv_path.exists() or csv_path.stat().st_size == 0:
-        e = f"CSV file does not exist or is empty: {csv_path}"
-        raise ValueError(e)
+        raise ValueError(f"CSV file does not exist or is empty: {csv_path}")
 
     module_dir = (
         Path(module_root_dir) / module_dir_name
@@ -54,9 +56,22 @@ def generate_paths(
     module_dir.mkdir(parents=True, exist_ok=True)
     module_path = module_dir / module_name
 
-    with open(str(csv_path), mode="r") as file:
-        reader = csv.DictReader(file)
-        paths = {row["name"]: row["path"] for row in reader}
+    df = pd.read_csv(csv_path)
+    if not check_header(df.columns.tolist()):
+        raise ValueError(f"Invalid header in CSV file: {csv_path}")
+
+    paths = {}
+    for _, row in df.iterrows():
+        try:
+            row_data = row.to_dict()
+            row_data["id"] = int(row_data["id"])
+            path_entry = PathEntry(**row_data)
+            paths[path_entry.name] = path_entry.path
+        except ValidationError as ve:
+            raise ValidationError(f"Validation error for row {row_data}: {ve}")
+
+    if not paths:
+        raise ValueError(f"Empty CSV file: {csv_path}")
 
     lines = [
         "from pathlib import Path\n",

@@ -64,3 +64,17 @@ class Config:
         self.config[key] = value
         with open(self.get_config_file(), "w") as file:
             json.dump(self.config, file)
+
+    def set_project_root(self, project_root: str):
+        """
+        Sets the project root directory in the configuration.
+
+        Args:
+            project_root (str): The project root directory path.
+        """
+        project_root_path = Path(project_root)
+
+        if not project_root_path.is_absolute():
+            project_root_path = project_root_path.resolve()
+
+        self.set("project_root", str(project_root_path))

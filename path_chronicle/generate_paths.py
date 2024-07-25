@@ -60,6 +60,9 @@ def generate_paths(
     if not check_header(df.columns.tolist()):
         raise ValueError(f"Invalid header in CSV file: {csv_path}")
 
+    if df.empty:
+        raise ValueError(f"Empty CSV file: {csv_path}")
+
     paths = {}
     for _, row in df.iterrows():
         try:
@@ -68,10 +71,7 @@ def generate_paths(
             path_entry = PathEntry(**row_data)
             paths[path_entry.name] = path_entry.path
         except ValidationError as ve:
-            raise ValidationError(f"Validation error for row {row_data}: {ve}")
-
-    if not paths:
-        raise ValueError(f"Empty CSV file: {csv_path}")
+            raise ValueError(f"Validation error for row {row_data}: {ve}")
 
     lines = [
         "from pathlib import Path\n",

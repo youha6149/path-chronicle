@@ -1,3 +1,5 @@
+import csv
+
 import pytest
 
 from path_chronicle.generate_paths import generate_paths
@@ -63,6 +65,60 @@ def test_generate_paths_empty_csv(setup_env):
         )
 
 
+def test_generate_paths_invalid_header(setup_env, setup_empty_csv, setup_module_file):
+    """
+    Test the generate_paths function with a CSV file with an invalid header.
+
+    Args:
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        ValueError is raised with appropriate message.
+    """
+
+    with open(setup_empty_csv, mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["invalid", "header"])
+
+    with pytest.raises(
+        ValueError, match=f"Invalid header in CSV file: {setup_empty_csv}"
+    ):
+        generate_paths(
+            csv_name=setup_empty_csv.name,
+            module_name=setup_module_file.name,
+            csv_root_dir=str(setup_env),
+            module_root_dir=str(setup_env),
+        )
+
+
+def test_generate_paths_validation_error(
+    setup_env, setup_csv_header_only, setup_module_file
+):
+    """
+    Test the generate_paths function with a CSV file containing invalid data.
+
+    Args:
+        setup_env (Path): The temporary environment directory.
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
+        setup_module_file (Path): The path to the module file.
+
+    Asserts:
+        ValueError is raised with appropriate message.
+    """
+
+    with open(setup_csv_header_only, mode="a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["-1", "", "", ""])
+
+    with pytest.raises(ValueError, match="Validation error for row"):
+        generate_paths(
+            csv_name=setup_csv_header_only.name,
+            module_name=setup_module_file.name,
+            csv_root_dir=str(setup_env),
+            module_root_dir=str(setup_env),
+        )
+
+
 def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_module_file):
     """
     Test the generate_paths function with an empty data in CSV file.
@@ -77,15 +133,13 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
         the expected content for an empty CSV.
     """
 
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match=f"Empty CSV file: {setup_csv_header_only}"):
         generate_paths(
             csv_name=setup_csv_header_only.name,
             module_name=setup_module_file.name,
             csv_root_dir=str(setup_env),
             module_root_dir=str(setup_env),
         )
-
-    assert "empty CSV file" in str(exc_info.value)
 
 
 def generate_expected_content(paths: list[dict]) -> str:

@@ -161,3 +161,25 @@ def test_generate_paths_entry(setup_csv_header_only, setup_env):
         assert "test_file.txt" in content
 
     os.remove(setup_env / "path_module" / "paths.py")
+
+
+def test_set_pj_root_entry(setup_config_file, setup_env):
+    """
+    Test setting the project root directory via the command line entry point.
+
+    Args:
+        setup_config_file (Path): Path to the setup config file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The project root directory should be set and the output should indicate success.
+    """
+    test_project_root_path = "/new/path/to/project"
+
+    command = f"poetry run pcsetpjroot {test_project_root_path} --config_root_dir {str(setup_env)}"
+    run_command(command, cwd=PROJECT_ROOT)
+
+    with open(setup_config_file, "r") as file:
+        content = file.read()
+        assert "project_root" in content
+        assert test_project_root_path in content

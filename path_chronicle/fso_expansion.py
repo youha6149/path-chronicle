@@ -3,7 +3,10 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from path_chronicle.schema import PathEntry, check_header
+import pandas as pd
+from pydantic import ValidationError
+
+from path_chronicle.schema import PathEntry, check_header, normalize_name
 from path_chronicle.utils import get_package_root
 
 
@@ -57,23 +60,31 @@ class FsoExpansion:
             return paths
 
         try:
-            with open(self.csv_file, mode="r") as file:
-                reader = csv.DictReader(file)
-                rows = list(reader)
-                if not rows:
-                    if not check_header(list(reader.fieldnames or [])):
-                        raise ValueError("Invalid header in CSV file.")
+            df = pd.read_csv(self.csv_file)
+            if not check_header(list(df.columns)):
+                raise ValueError("Invalid header in CSV file.")
 
-                    print("CSV file only contains headers. Returning empty paths list.")
-                    return paths
-                for row in rows:
-                    path_entry = PathEntry(
-                        id=int(row["id"]),
-                        name=row["name"],
-                        path=row["path"],
-                        description=row["description"],
-                    )
+            if df.empty:
+                print("CSV file is empty. Returning empty paths list.")
+                return paths
+
+            for i, row in df.iterrows():
+                try:
+                    row_data = row.to_dict()
+                    row_data["id"] = int(row_data["id"])
+                    row_data["name"] = normalize_name(row_data["name"])
+                    path_entry = PathEntry(**row_data)
                     paths.append(path_entry.model_dump())
+
+                except ValidationError as e:
+                    print(
+                        f"Error loading CSV row: row number {i}: {e}", file=sys.stderr
+                    )
+                    continue
+
+        except ValueError as ve:
+            print(f"Error reading CSV file: {ve}", file=sys.stderr)
+            raise
 
         except Exception as e:
             print(f"Error reading CSV file: {e}", file=sys.stderr)
@@ -121,23 +132,27 @@ class FsoExpansion:
         try:
             parent_path = Path(parent_dir)
             new_path = parent_path / name
+
+            path_entry = PathEntry(
+                id=max([p["id"] for p in self.paths], default=0) + 1,
+                name=normalize_name(name),
+                path=str(new_path),
+                description=description,
+            )
+
             create_function(new_path)
             print(f"Path created at {new_path}")
 
             if is_save_to_csv:
-                self._print_csv_path()
-
-                path_entry = PathEntry(
-                    id=max([p["id"] for p in self.paths], default=0) + 1,
-                    name=name.replace(".", "_"),
-                    path=str(new_path),
-                    description=description,
-                )
-
                 self.paths.append(path_entry.model_dump())
+                self._print_csv_path()
                 self._save_paths()
 
             return new_path
+
+        except ValidationError as e:
+            print(f"Error creating path entry: {e}", file=sys.stderr)
+            return None
 
         except Exception as e:
             print(f"Error creating path: {e}", file=sys.stderr)

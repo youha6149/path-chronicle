@@ -59,6 +59,25 @@ def test_load_paths_return_empty_paths_list(
     ), f"Paths list should be {expected_paths} for {csv_name}."
 
 
+def test_load_paths_invalid_header(setup_empty_csv: Path, setup_env: Path) -> None:
+    """
+    Test that load_paths correctly handles a CSV file with an invalid header.
+
+    Args:
+        setup_empty_csv (Path): The path to the temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The output should indicate that the CSV header is invalid.
+    """
+    with open(setup_empty_csv, mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["invalid_header"])
+
+    with pytest.raises(ValueError, match="Invalid header in CSV file."):
+        create_fso_expansion(setup_empty_csv.name, setup_env)
+
+
 def test_load_paths_with_data(
     setup_csv_1_data: Path, setup_env: Path, setup_test_dir_paths: list[dict]
 ) -> None:

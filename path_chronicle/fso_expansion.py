@@ -39,9 +39,7 @@ class FsoExpansion:
             csv_root_dir (str | None): The root directory path for the CSV file.
                                        Default is None.
         """
-        self.project_root_dir = (
-            config.get("project_root") if config.get("project_root") else None
-        )
+        self.config = config
         self.package_root_dir = get_package_root()
         self.csv_dir = (
             Path(csv_root_dir) / csv_dir_name
@@ -135,7 +133,18 @@ class FsoExpansion:
         """
         try:
             parent_path = Path(parent_dir)
-            new_path = parent_path / name
+            new_path = (parent_path / name).resolve()
+            project_root = self.config.get("project_root")
+
+            is_relative = False
+            if project_root is not None and isinstance(project_root, str):
+                print(f"Project root directory: {Path(project_root)}")
+                new_path = new_path.relative_to(Path(project_root))
+                create_path = Path(project_root) / new_path
+                is_relative = True
+
+            if not is_relative:
+                create_path = new_path
 
             path_entry = PathEntry(
                 id=max([p["id"] for p in self.paths], default=0) + 1,
@@ -144,8 +153,8 @@ class FsoExpansion:
                 description=description,
             )
 
-            create_function(new_path)
-            print(f"Path created at {new_path}")
+            create_function(create_path)
+            print(f"Path created at {create_path}")
 
             if is_save_to_csv:
                 self.paths.append(path_entry.model_dump())

@@ -102,10 +102,10 @@ def test_set_project_root_from_relative(setup_env):
         The project root should be set to the absolute path.
     """
     config = Config(package_root=setup_env)
-    config.set_project_root("project_root")
+    config.set_project_root("./")
 
     actual_project_root = Path(config.get("project_root"))
-    expected_project_root = Path("project_root").resolve()
+    expected_project_root = Path("./").resolve()
     assert (
         actual_project_root == expected_project_root
     ), "Should return the newly set value for project_root. "

@@ -5,13 +5,18 @@ from pathlib import Path
 
 import pytest
 
+from path_chronicle.config import Config
 from path_chronicle.fso_expansion import FsoExpansion
 from path_chronicle.schema import PathEntry
 
 
 def create_fso_expansion(csv_name: str, setup_env: Path) -> FsoExpansion:
+    config = Config(setup_env)
     return FsoExpansion(
-        csv_name=csv_name, csv_root_dir=str(setup_env), csv_dir_name="csv"
+        config=config,
+        csv_name=csv_name,
+        csv_root_dir=str(setup_env),
+        csv_dir_name="csv",
     )
 
 
@@ -51,9 +56,8 @@ def test_load_paths_return_empty_paths_list(
     else:
         csv_path = csv_name
 
-    pm = FsoExpansion(
-        csv_name=csv_path, csv_root_dir=str(setup_env), csv_dir_name="csv"
-    )
+    pm = create_fso_expansion(csv_path, setup_env)
+
     assert (
         pm.paths == expected_paths
     ), f"Paths list should be {expected_paths} for {csv_name}."

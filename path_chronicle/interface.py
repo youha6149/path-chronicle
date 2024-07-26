@@ -26,6 +26,7 @@ def _common_parser(description: str) -> argparse.ArgumentParser:
         --csv_root_dir (str | None): Root directory where the CSV file will be stored. Default is None.
         --csv_dir_name (str): Name of the directory containing the CSV file. Default is "csv".
         --no-save (bool): Do not save the path to the CSV file. If specified, the path will not be saved.
+        --config_root_dir (str | None): Root directory where the config file is located. Default is None.
     """
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("name", help="Name of the directory or file to create")
@@ -52,7 +53,35 @@ def _common_parser(description: str) -> argparse.ArgumentParser:
     parser.add_argument(
         "--no-save", action="store_true", help="Do not save the path to the CSV file"
     )
+    parser.add_argument(
+        "--config_root_dir",
+        default=None,
+        help="Root directory where the config file is located",
+    )
     return parser
+
+
+def _create_fso_expansion(args: argparse.Namespace) -> FsoExpansion:
+    """
+    Creates an FsoExpansion object based on the command line arguments.
+
+    Args:
+        args (argparse.Namespace): The parsed command line arguments.
+
+    Returns:
+        FsoExpansion: The FsoExpansion object.
+    """
+    if args.config_root_dir is not None:
+        config = Config(Path(args.config_root_dir))
+    else:
+        config = Config()
+
+    return FsoExpansion(
+        config=config,
+        csv_name=args.csv_name,
+        csv_root_dir=args.csv_root_dir,
+        csv_dir_name=args.csv_dir_name,
+    )
 
 
 def create_dir_and_save_csv_entry():
@@ -66,11 +95,7 @@ def create_dir_and_save_csv_entry():
         parser = _common_parser("Create a directory.")
         args = parser.parse_args()
 
-        pm = FsoExpansion(
-            csv_name=args.csv_name,
-            csv_root_dir=args.csv_root_dir,
-            csv_dir_name=args.csv_dir_name,
-        )
+        pm = _create_fso_expansion(args)
         is_save_to_csv = not args.no_save
         pm.create_dir_and_save_csv(
             args.name, args.parent_dir, args.description, is_save_to_csv
@@ -91,11 +116,7 @@ def create_file_and_save_csv_entry():
         parser = _common_parser("Create a file.")
         args = parser.parse_args()
 
-        pm = FsoExpansion(
-            csv_name=args.csv_name,
-            csv_root_dir=args.csv_root_dir,
-            csv_dir_name=args.csv_dir_name,
-        )
+        pm = _create_fso_expansion(args)
         is_save_to_csv = not args.no_save
         pm.create_file_and_save_csv(
             args.name, args.parent_dir, args.description, is_save_to_csv
@@ -131,13 +152,15 @@ def list_paths_entry():
             default="csv",
             help="Name of the directory containing the CSV file",
         )
+        parser.add_argument(
+            "--config_root_dir",
+            default=None,
+            help="Name of the directory containing the CSV file",
+        )
+
         args = parser.parse_args()
 
-        pm = FsoExpansion(
-            csv_name=args.csv_name,
-            csv_dir_name=args.csv_dir_name,
-            csv_root_dir=args.csv_root_dir,
-        )
+        pm = _create_fso_expansion(args)
         pm.list_paths()
 
     except Exception as e:
@@ -176,21 +199,25 @@ def remove_path_and_from_csv_entry():
             default="csv",
             help="Name of the directory containing the CSV file",
         )
+        parser.add_argument(
+            "--config_root_dir",
+            default=None,
+            help="Name of the directory containing the CSV file",
+        )
         args = parser.parse_args()
 
         if args.id is None and args.name is None and args.path is None:
             print("Error: At least one of --id, --name, or --path must be provided.")
             return
 
-        pm = FsoExpansion(
-            csv_name=args.csv_name,
-            csv_root_dir=args.csv_root_dir,
-            csv_dir_name=args.csv_dir_name,
-        )
+        pm = _create_fso_expansion(args)
         pm.remove_path_and_from_csv(id=args.id, name=args.name, path=args.path)
 
     except Exception as e:
-        print(f"Error in remove_path_entry function: {e}", file=sys.stderr)
+        print(
+            f"Error in remove_path_entry function: {e}",
+            file=sys.stderr,
+        )
 
 
 def generate_paths_entry():
@@ -255,6 +282,7 @@ def set_project_root_entry():
 
     Example usage:
         poetry run pcsetpjroot ./
+        poetry run pcsetpjroot /path/to/project
     """
     try:
         parser = argparse.ArgumentParser(

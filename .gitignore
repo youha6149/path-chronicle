@@ -1,8 +1,9 @@
 dist
-csv
 *.csv
-__pycache__
 .pytest_cache
-path_module
 .venv
 .mypy_cache
+config
+path_module
+csv
+__pycache__

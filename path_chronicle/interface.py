@@ -254,7 +254,7 @@ def set_project_root_entry():
     Set the project root directory to config file.
 
     Example usage:
-        poetry run pcsetprojectroot /path/to/project
+        poetry run pcsetpjroot ./
     """
     try:
         parser = argparse.ArgumentParser(
@@ -268,7 +268,12 @@ def set_project_root_entry():
         )
         args = parser.parse_args()
 
-        config = Config(Path(args.config_root_dir))
+        if args.config_root_dir is not None:
+            config_root_dir = Path(args.config_root_dir)
+            config = Config(config_root_dir)
+        else:
+            config = Config()
+
         config.set_project_root(args.value)
 
     except Exception as e:

@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 from pydantic import ValidationError
 
+from path_chronicle.config import Config
 from path_chronicle.schema import PathEntry, check_header
 from path_chronicle.utils import get_package_root
 
@@ -23,6 +24,7 @@ class FsoExpansion:
 
     def __init__(
         self,
+        config: Config,
         csv_name: str = "paths.csv",
         csv_dir_name: str = "csv",
         csv_root_dir: str | None = None,
@@ -37,6 +39,9 @@ class FsoExpansion:
             csv_root_dir (str | None): The root directory path for the CSV file.
                                        Default is None.
         """
+        self.project_root_dir = (
+            config.get("project_root") if config.get("project_root") else None
+        )
         self.package_root_dir = get_package_root()
         self.csv_dir = (
             Path(csv_root_dir) / csv_dir_name

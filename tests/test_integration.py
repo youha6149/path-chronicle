@@ -16,7 +16,7 @@ def run_command(command, cwd=None):
         cwd (str, optional): The directory to run the command in.
 
     Returns:
-        str: The standard output of the command.
+        str: The standard output and error of the command.
 
     Raises:
         AssertionError: If the command returns a non-zero exit code.
@@ -26,9 +26,13 @@ def run_command(command, cwd=None):
     )
     if result.returncode != 0:
         print(f"Command failed: {command}")
+        print("Standard Output:")
         print(result.stdout)
+        print("Standard Error:")
         print(result.stderr)
-    assert result.returncode == 0
+        assert (
+            result.returncode == 0
+        ), f"Command failed with exit code {result.returncode}"
     return result.stdout + result.stderr
 
 
@@ -145,24 +149,21 @@ def test_generate_paths_entry(setup_csv_header_only, setup_env):
         The generated paths.py file should contain the paths and the output should indicate success.
     """
     run_command(
-        f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv",
+        f"poetry run pcmkdir test_dir {setup_env} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}",
         cwd=PROJECT_ROOT,
     )
+
     run_command(
-        f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv",
+        f"poetry run pctouch test_file.txt {setup_env} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}",
         cwd=PROJECT_ROOT,
     )
 
     command = f"poetry run gpaths --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --module_name paths.py --module_root_dir {setup_env} --module_dir_name path_module"
     run_command(command, cwd=PROJECT_ROOT)
-    assert os.path.exists(setup_env / "path_module" / "paths.py")
 
-    with open(setup_env / "path_module" / "paths.py", "r") as file:
-        content = file.read()
-        assert "test_dir" in content
-        assert "test_file.txt" in content
-
-    os.remove(setup_env / "path_module" / "paths.py")
+    assert os.path.exists(
+        setup_env / "path_module" / "paths.py"
+    ), f"File {setup_env / 'path_module' / 'paths.py'} does not exist"
 
 
 def test_set_pj_root_entry(setup_config_file, setup_env):

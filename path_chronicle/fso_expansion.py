@@ -192,6 +192,11 @@ class FsoExpansion:
             target_path = self._find_target_path(id, name, path)
 
             if target_path:
+                project_root = self.config.get("project_root")
+                if project_root is not None and isinstance(project_root, str):
+                    target_path = target_path.relative_to(Path(project_root))
+                    target_path = Path(project_root) / target_path
+
                 self._delete_path(target_path)
             else:
                 print("No valid identifier provided to delete path.")
@@ -201,7 +206,7 @@ class FsoExpansion:
 
     def _find_target_path(
         self, id: int | None = None, name: str | None = None, path: str | None = None
-    ) -> str | None:
+    ) -> Path | None:
         """
         Finds the target path based on the specified ID, name, or path.
 
@@ -211,63 +216,66 @@ class FsoExpansion:
             path (str | None): The string representation of the path to find.
 
         Returns:
-            str | None: The target path if found, otherwise None.
+            Path | None: The target path if found, otherwise None.
         """
-        target_path = None
+        target_path_str: str | None = None
 
         if id is not None:
             for p in self.paths:
                 if p.id == id:
-                    target_path = p.path
+                    target_path_str = p.path
                     break
 
-            if target_path is None:
+            if target_path_str is None:
                 print(f"No path found with id: {id}")
                 return None
 
-        if name is not None and target_path is None:
+        if name is not None and target_path_str is None:
             for p in self.paths:
                 if p.name == name:
-                    target_path = p.path
+                    target_path_str = p.path
                     break
 
-            if target_path is None:
+            if target_path_str is None:
                 print(f"No path found with name: {name}")
                 return None
 
-        if path is not None and target_path is None:
-            target_path = str(path)
-            if not any(p.path == target_path for p in self.paths):
-                print(f"No path found with path: {target_path}")
+        if path is not None and target_path_str is None:
+            target_path_str = str(path)
+            if not any(p.path == target_path_str for p in self.paths):
+                print(f"No path found with path: {target_path_str}")
                 return None
+
+        if target_path_str is not None:
+            target_path = Path(target_path_str)
 
         return target_path
 
-    def _delete_path(self, target_path: str) -> None:
+    def _delete_path(self, target_path: Path) -> None:
         """
         Deletes the target path and updates the CSV file.
 
         Args:
-            target_path (str): The target path to delete.
+            target_path (Path): The path to delete.
         """
         try:
-            path_obj = Path(target_path)
-            if path_obj.exists():
+
+            if target_path.exists():
                 self.paths = [
                     p
                     for p in self.paths
-                    if not Path(p.path).resolve().is_relative_to(path_obj.resolve())
+                    if not Path(p.path).resolve().is_relative_to(target_path.resolve())
                 ]
 
-                if path_obj.is_dir():
-                    for item in path_obj.glob("**/*"):
+                if target_path.is_dir():
+                    for item in target_path.glob("**/*"):
                         if item.is_file():
                             item.unlink()
                         else:
                             item.rmdir()
-                    path_obj.rmdir()
+                    target_path.rmdir()
                 else:
-                    path_obj.unlink()
+                    target_path.unlink()
                 print(f"Path deleted: {target_path}")
 
                 self._save_paths()

@@ -75,6 +75,9 @@ class FsoExpansion:
                 try:
                     row_data = row.to_dict()
                     row_data["id"] = int(row_data["id"])
+                    row_data = {
+                        k: v if pd.notna(v) else None for k, v in row_data.items()
+                    }
                     path_entry = PathEntry(**row_data)
                     paths.append(path_entry)
 
@@ -346,10 +349,8 @@ class FsoExpansion:
         if not self.paths:
             print("No paths saved in CSV.")
         else:
-            self._print_table(
-                list(PathEntry.model_fields.keys()),
-                [(str(p.id), p.name, p.path, p.description) for p in self.paths],
-            )
+            df = pd.DataFrame([p.model_dump() for p in self.paths])
+            print(df.to_string(index=False))
 
     def _print_csv_path(self) -> None:
         """
@@ -357,27 +358,3 @@ class FsoExpansion:
         """
         print(f"CSV directory: {self.csv_dir}")
         print(f"CSV file path: {self.csv_file}\n")
-
-    def _print_table(self, headers, rows) -> None:
-        """
-        Displays data in a table format.
-
-        Args:
-            headers (list): The table headers.
-            rows (list): The table row data.
-        """
-        col_widths = [len(header) for header in headers]
-        for row in rows:
-            for i, cell in enumerate(row):
-                col_widths[i] = max(col_widths[i], len(cell))
-
-        header_row = " | ".join(
-            f"{header:{col_widths[i]}}" for i, header in enumerate(headers)
-        )
-        print(header_row)
-        print("-+-".join("-" * width for width in col_widths))
-
-        for row in rows:
-            print(" | ".join(f"{cell:{col_widths[i]}}" for i, cell in enumerate(row)))
-
-        print()

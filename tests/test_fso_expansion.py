@@ -3,6 +3,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from path_chronicle.config import Config
@@ -286,7 +287,9 @@ def test_list_paths_with_data(
 
     with redirect_stdout(f):
         pm.list_paths()
-    output = f.getvalue()
+    output = f.getvalue().strip()
+    output = "\n".join(line.strip() for line in output.split("\n"))
+
     headers = list(PathEntry.model_fields.keys())
     rows = [
         (
@@ -296,23 +299,13 @@ def test_list_paths_with_data(
             setup_test_dir_paths[0].description,
         )
     ]
+    df = pd.DataFrame(rows, columns=headers)
 
-    col_widths = [len(header) for header in headers]
-    for row in rows:
-        for i, cell in enumerate(row):
-            col_widths[i] = max(col_widths[i], len(cell or ""))
+    expected_output = df.to_string(index=False).strip()
+    expected_output = "\n".join(line.strip() for line in expected_output.split("\n"))
 
-    header_row = " | ".join(
-        f"{header:{col_widths[i]}}" for i, header in enumerate(headers)
-    )
-    separator = "-+-".join("-" * width for width in col_widths)
-
-    data_rows = "\n".join(
-        " | ".join(f"{cell:{col_widths[i]}}" for i, cell in enumerate(row))
-        for row in rows
-    )
-
-    expected_output = f"{header_row}\n{separator}\n{data_rows}\n\n"
+    print(f"Output:\n{output}")
+    print(f"Expected output:\n{expected_output}")
     assert (
         output == expected_output
     ), f"Output should match expected table format:\n{output}"

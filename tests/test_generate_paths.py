@@ -3,6 +3,7 @@ import csv
 import pytest
 
 from path_chronicle.generate_paths import generate_paths
+from path_chronicle.schema import PathEntry
 
 
 @pytest.fixture
@@ -142,7 +143,7 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
         )
 
 
-def generate_expected_content(paths: list[dict]) -> str:
+def generate_expected_content(paths: list[PathEntry]) -> str:
     lines = [
         "from pathlib import Path\n",
         "\n",
@@ -154,7 +155,7 @@ def generate_expected_content(paths: list[dict]) -> str:
     ]
 
     for path in paths:
-        lines.append(f"    {path['name']} = Path('{path['path']}')\n")
+        lines.append(f"    {path.name} = Path('{path.path}')\n")
     lines.append("\n    @staticmethod\n")
     lines.append("    def get_path(name: str) -> Path:\n")
     lines.append('        """\n')
@@ -162,7 +163,7 @@ def generate_expected_content(paths: list[dict]) -> str:
     lines.append("\n")
     lines.append("        Available paths:\n")
     for path in paths:
-        lines.append(f"        - {path['name']}: {path['path']}\n")
+        lines.append(f"        - {path.name}: {path.path}\n")
     lines.append('        """\n')
     lines.append("        return getattr(Paths, name, None)\n")
 
@@ -172,7 +173,7 @@ def generate_expected_content(paths: list[dict]) -> str:
 @pytest.mark.parametrize("setup_test_dir_paths", [1, 2, 3], indirect=True)
 def test_generate_paths_with_variable_data(
     setup_csv_with_variable_number_of_data,
-    setup_test_dir_paths: list[dict],
+    setup_test_dir_paths: list[PathEntry],
     setup_env,
     setup_module_file,
 ) -> None:

@@ -50,14 +50,14 @@ class FsoExpansion:
         self.csv_file = self.csv_dir / csv_name
         self.paths = self._load_paths()
 
-    def _load_paths(self) -> list[dict]:
+    def _load_paths(self) -> list[PathEntry]:
         """
         Loads path info from the CSV file.
 
         Returns:
             list[dict]: A list of path info.
         """
-        paths: list = []
+        paths: list[PathEntry] = []
         if not self.csv_file.exists() or self.csv_file.stat().st_size == 0:
             print("CSV file does not exist or is empty. Returning empty paths list.")
             return paths
@@ -76,7 +76,7 @@ class FsoExpansion:
                     row_data = row.to_dict()
                     row_data["id"] = int(row_data["id"])
                     path_entry = PathEntry(**row_data)
-                    paths.append(path_entry.model_dump())
+                    paths.append(path_entry)
 
                 except ValidationError as e:
                     print(
@@ -103,7 +103,7 @@ class FsoExpansion:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 writer.writeheader()
                 for path_info in self.paths:
-                    writer.writerow(path_info)
+                    writer.writerow(path_info.model_dump())
 
             print(f"Paths saved to CSV file at {self.csv_file}")
 
@@ -147,7 +147,7 @@ class FsoExpansion:
                 create_path = new_path
 
             path_entry = PathEntry(
-                id=max([p["id"] for p in self.paths], default=0) + 1,
+                id=max([p.id for p in self.paths], default=0) + 1,
                 name=name,
                 path=str(new_path),
                 description=description,
@@ -157,7 +157,7 @@ class FsoExpansion:
             print(f"Path created at {create_path}")
 
             if is_save_to_csv:
-                self.paths.append(path_entry.model_dump())
+                self.paths.append(path_entry)
                 self._print_csv_path()
                 self._save_paths()
 
@@ -217,8 +217,8 @@ class FsoExpansion:
 
         if id is not None:
             for p in self.paths:
-                if p["id"] == id:
-                    target_path = p["path"]
+                if p.id == id:
+                    target_path = p.path
                     break
 
             if target_path is None:
@@ -227,8 +227,8 @@ class FsoExpansion:
 
         if name is not None and target_path is None:
             for p in self.paths:
-                if p["name"] == name:
-                    target_path = p["path"]
+                if p.name == name:
+                    target_path = p.path
                     break
 
             if target_path is None:
@@ -237,7 +237,7 @@ class FsoExpansion:
 
         if path is not None and target_path is None:
             target_path = str(path)
-            if not any(p["path"] == target_path for p in self.paths):
+            if not any(p.path == target_path for p in self.paths):
                 print(f"No path found with path: {target_path}")
                 return None
 
@@ -256,7 +256,7 @@ class FsoExpansion:
                 self.paths = [
                     p
                     for p in self.paths
-                    if not Path(p["path"]).resolve().is_relative_to(path_obj.resolve())
+                    if not Path(p.path).resolve().is_relative_to(path_obj.resolve())
                 ]
 
                 if path_obj.is_dir():
@@ -340,10 +340,7 @@ class FsoExpansion:
         else:
             self._print_table(
                 list(PathEntry.model_fields.keys()),
-                [
-                    (str(p["id"]), p["name"], p["path"], p["description"])
-                    for p in self.paths
-                ],
+                [(str(p.id), p.name, p.path, p.description) for p in self.paths],
             )
 
     def _print_csv_path(self) -> None:

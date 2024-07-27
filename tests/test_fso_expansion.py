@@ -83,7 +83,7 @@ def test_load_paths_invalid_header(setup_empty_csv: Path, setup_env: Path) -> No
 
 
 def test_load_paths_with_data(
-    setup_csv_1_data: Path, setup_env: Path, setup_test_dir_paths: list[dict]
+    setup_csv_1_data: Path, setup_env: Path, setup_test_dir_paths: list[PathEntry]
 ) -> None:
     """
     Test that FsoExpansion correctly loads path data from a CSV file.
@@ -91,6 +91,8 @@ def test_load_paths_with_data(
     Args:
         setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
+        setup_test_dir_paths (list): List of PathEntry objects containing
+                                     the test directory paths.
 
     Asserts:
         The paths list should contain the loaded data.
@@ -99,13 +101,13 @@ def test_load_paths_with_data(
 
     assert len(pm.paths) == 1, "Paths list should contain one entry."
     assert (
-        pm.paths[0]["name"] == setup_test_dir_paths[0]["name"]
+        pm.paths[0].name == setup_test_dir_paths[0].name
     ), "Name should match the CSV data."
     assert (
-        pm.paths[0]["path"] == setup_test_dir_paths[0]["path"]
+        pm.paths[0].path == setup_test_dir_paths[0].path
     ), "Path should match the CSV data."
     assert (
-        pm.paths[0]["description"] == setup_test_dir_paths[0]["description"]
+        pm.paths[0].description == setup_test_dir_paths[0].description
     ), "Description should match the CSV data."
 
 
@@ -128,13 +130,11 @@ def test_create_dir_and_save_csv(setup_csv_header_only: Path, setup_env: Path) -
     assert new_dir is not None, "new_dir should not be None."
     assert new_dir.exists() and new_dir.is_dir(), "Directory should be created."
     assert (
-        pm.paths[-1]["name"] == "test_dir"
+        pm.paths[-1].name == "test_dir"
     ), "Path name should be saved in the paths list."
-    assert pm.paths[-1]["path"] == str(
-        new_dir
-    ), "Path should be saved in the paths list."
+    assert pm.paths[-1].path == str(new_dir), "Path should be saved in the paths list."
     assert (
-        pm.paths[-1]["description"] == "Test directory description"
+        pm.paths[-1].description == "Test directory description"
     ), "Description should be saved in the paths list."
 
     with open(pm.csv_file, mode="r") as file:
@@ -166,13 +166,11 @@ def test_create_file_and_save_csv(setup_csv_header_only: Path, setup_env: Path) 
     assert new_file is not None, "new_file should not be None."
     assert new_file.exists() and new_file.is_file(), "File should be created."
     assert (
-        pm.paths[-1]["name"] == new_file.name
+        pm.paths[-1].name == new_file.name
     ), "Path name should be saved in the paths list."
-    assert pm.paths[-1]["path"] == str(
-        new_file
-    ), "Path should be saved in the paths list."
+    assert pm.paths[-1].path == str(new_file), "Path should be saved in the paths list."
     assert (
-        pm.paths[-1]["description"] == "Test file description"
+        pm.paths[-1].description == "Test file description"
     ), "Description should be saved in the paths list."
 
     with open(pm.csv_file, mode="r") as file:
@@ -209,7 +207,7 @@ def test_create_dir_no_save_csv(setup_csv_header_only: Path, setup_env: Path) ->
     assert new_dir is not None, "new_dir should not be None."
     assert new_dir.exists() and new_dir.is_dir(), "Directory should be created."
     assert not any(
-        p["name"] == "test_dir_nosave" for p in pm.paths
+        p.name == "test_dir_nosave" for p in pm.paths
     ), "Path should not be saved in the paths list."
 
     with open(pm.csv_file, mode="r") as file:
@@ -240,7 +238,7 @@ def test_create_file_no_save_csv(setup_csv_header_only: Path, setup_env: Path) -
     assert new_file is not None, "new_file should not be None."
     assert new_file.exists() and new_file.is_file(), "File should be created."
     assert not any(
-        p["name"] == "test_file_nosave_txt" for p in pm.paths
+        p.name == "test_file_nosave_txt" for p in pm.paths
     ), "Path should not be saved in the paths list."
 
     with open(pm.csv_file, mode="r") as file:
@@ -269,7 +267,7 @@ def test_list_paths_empty(setup_csv_header_only: Path, setup_env: Path) -> None:
 
 
 def test_list_paths_with_data(
-    setup_csv_1_data: Path, setup_test_dir_paths: list[dict], setup_env: Path
+    setup_csv_1_data: Path, setup_env: Path, setup_test_dir_paths: list[PathEntry]
 ) -> None:
     """
     Test that FsoExpansion correctly lists paths when the CSV contains data.
@@ -277,29 +275,32 @@ def test_list_paths_with_data(
     Args:
         setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
+        setup_test_dir_paths (list): List of PathEntry objects containing
+                                     the test directory paths.
 
     Asserts:
         The output should match the expected table format.
     """
     pm = create_fso_expansion(setup_csv_1_data.name, setup_env)
     f = StringIO()
+
     with redirect_stdout(f):
         pm.list_paths()
     output = f.getvalue()
     headers = list(PathEntry.model_fields.keys())
     rows = [
         (
-            str(1),
-            setup_test_dir_paths[0]["name"],
-            setup_test_dir_paths[0]["path"],
-            setup_test_dir_paths[0]["description"],
+            str(setup_test_dir_paths[0].id),
+            setup_test_dir_paths[0].name,
+            setup_test_dir_paths[0].path,
+            setup_test_dir_paths[0].description,
         )
     ]
 
     col_widths = [len(header) for header in headers]
     for row in rows:
         for i, cell in enumerate(row):
-            col_widths[i] = max(col_widths[i], len(cell))
+            col_widths[i] = max(col_widths[i], len(cell or ""))
 
     header_row = " | ".join(
         f"{header:{col_widths[i]}}" for i, header in enumerate(headers)
@@ -369,7 +370,7 @@ def test_remove_path_and_from_csv_all_arguments(
     setup_env: Path,
     remove_by: str,
     value: str | int,
-    expected_paths: list[dict],
+    expected_paths: list[PathEntry],
 ) -> None:
     """
     Test that FsoExpansion can remove a path by id, name, or path.

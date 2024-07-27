@@ -55,19 +55,19 @@ def test_valid_path_entry():
     assert entry.description == "valid description"
 
 
-def test_check_header_valid(setup_test_dir_paths):
-    header = list(setup_test_dir_paths[0].keys())
+def test_check_header_valid(setup_test_dir_paths: list[PathEntry]):
+    header = list(setup_test_dir_paths[0].model_fields.keys())
     assert check_header(header)
 
 
-def test_check_header_invalid_order(setup_test_dir_paths):
-    header = list(setup_test_dir_paths[0].keys())
+def test_check_header_invalid_order(setup_test_dir_paths: list[PathEntry]):
+    header = list(setup_test_dir_paths[0].model_fields.keys())
     header = header[1:] + header[:1]
     assert not check_header(header)
 
 
-def test_check_header_invalid_headers(setup_test_dir_paths):
-    header = list(setup_test_dir_paths[0].keys())
+def test_check_header_invalid_headers(setup_test_dir_paths: list[PathEntry]):
+    header = list(setup_test_dir_paths[0].model_fields.keys())
     header[3] = "desc"
     assert not check_header(header)
 

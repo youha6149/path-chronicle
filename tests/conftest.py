@@ -5,6 +5,8 @@ from typing import Generator
 
 import pytest
 
+from path_chronicle.schema import PathEntry
+
 
 @pytest.fixture
 def setup_env(tmp_path: Path) -> Generator[Path, None, None]:
@@ -55,20 +57,21 @@ def setup_csv_header_only(setup_empty_csv: Path) -> Path:
 
     with open(setup_empty_csv, mode="w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["id", "name", "path", "description"])
+        writer.writerow(PathEntry.model_fields.keys())
     return setup_empty_csv
 
 
 @pytest.fixture
 def setup_csv_1_data(
-    setup_csv_header_only: Path, setup_test_dir_paths: list[dict[str, str | int]]
+    setup_csv_header_only: Path, setup_test_dir_paths: list[PathEntry]
 ) -> Path:
     """
     Fixture to create a header and 1 data temporary CSV file for testing.
 
     Args:
         setup_csv_header_only: The path to the empty CSV file.
-        setup_test_dir_paths: List of dictionaries containing the test directory paths.
+        setup_test_dir_paths: List of PathEntry objects containing
+                              the test directory paths.
 
     Returns:
         The path to the created header and 1 data temporary CSV file.
@@ -76,14 +79,14 @@ def setup_csv_1_data(
 
     with open(setup_csv_header_only, mode="a", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(list(setup_test_dir_paths[0].values()))
+        writer.writerow(list(setup_test_dir_paths[0].model_dump().values()))
 
     return setup_csv_header_only
 
 
 @pytest.fixture
 def setup_csv_with_variable_number_of_data(
-    setup_csv_header_only: Path, setup_test_dir_paths: list[dict[str, str | int]]
+    setup_csv_header_only: Path, setup_test_dir_paths: list[PathEntry]
 ) -> Path:
     """
     Fixture to create a temporary CSV file with
@@ -91,7 +94,8 @@ def setup_csv_with_variable_number_of_data(
 
     Args:
         setup_csv_header_only: The path to the header-only CSV file.
-        setup_test_dir_paths: List of dictionaries containing the test directory paths.
+        setup_test_dir_paths: List of PathEntry objects containing
+                              the test directory paths.
 
     Returns:
         The path to the created CSV file with data entries.
@@ -100,7 +104,7 @@ def setup_csv_with_variable_number_of_data(
     with open(setup_csv_header_only, mode="a", newline="") as file:
         writer = csv.writer(file)
         for path_data in setup_test_dir_paths:
-            writer.writerow(list(path_data.values()))
+            writer.writerow(list(path_data.model_dump().values()))
 
     return setup_csv_header_only
 
@@ -108,7 +112,7 @@ def setup_csv_with_variable_number_of_data(
 @pytest.fixture
 def setup_test_dir_paths(
     tmp_path: Path, request: pytest.FixtureRequest
-) -> list[dict[str, str | int]]:
+) -> list[PathEntry]:
     """
     Fixture to create a list of test directory paths.
 
@@ -117,19 +121,19 @@ def setup_test_dir_paths(
         request: The pytest request object.
 
     Returns:
-        A list of dictionaries containing the test directory paths.
+        A list of PathEntry objects containing the test directory paths.
     """
     data_cnt = request.param if hasattr(request, "param") else 1
 
     test_path = tmp_path / "test_dir"
 
-    paths: list[dict[str, str | int]] = [
-        {
-            "id": i + 1,
-            "name": f"test_dir_{i + 1}",
-            "path": str(test_path),
-            "description": f"test_dir_description_{i + 1}",
-        }
+    paths = [
+        PathEntry(
+            id=i + 1,
+            name=f"test_dir_{i + 1}",
+            path=str(test_path / f"test_dir_{i + 1}"),
+            description=f"Test directory {i + 1}",
+        )
         for i in range(data_cnt)
     ]
 

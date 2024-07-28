@@ -125,7 +125,6 @@ def test_create_dir_and_save_csv(setup_csv_header_only: Path, setup_env: Path) -
     """
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
     target_path = setup_env / "test_dir"
-    print(target_path)
     new_dir = pm.create_dir_and_save_csv(str(target_path), "Test directory description")
 
     assert new_dir is not None, "new_dir should not be None."

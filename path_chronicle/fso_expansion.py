@@ -300,8 +300,7 @@ class FsoExpansion:
         Creates a new directory and optionally saves the path info to the CSV file.
 
         Args:
-            name (str): The name of the directory to create.
-            parent_dir (str): The path of the parent directory.
+            path (str): The path of the directory to create.
             description (str): A description of the directory.
             is_save_to_csv (bool): Whether to save to the CSV file. Default is True.
 
@@ -325,8 +324,7 @@ class FsoExpansion:
         Creates a new file and optionally saves the path info to the CSV file.
 
         Args:
-            name (str): The name of the file to create.
-            parent_dir (str): The path of the parent directory.
+            path (str): The path of the file to create.
             description (str): A description of the file.
             is_save_to_csv (bool): Whether to save to the CSV file. Default is True.
 

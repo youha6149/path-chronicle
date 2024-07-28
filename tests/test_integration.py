@@ -1,6 +1,5 @@
 import os
 import subprocess
-from pathlib import Path
 
 from path_chronicle.schema import PathEntry
 

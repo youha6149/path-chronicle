@@ -38,10 +38,14 @@ def generate_paths(
         FileNotFoundError: If the specified CSV file does not exist.
     """
 
+    package_root_str = get_package_root()
+    if package_root_str is None:
+        raise ValueError("Could not find package root directory.")
+
     csv_dir = (
         Path(csv_root_dir) / csv_dir_name
-        if csv_root_dir
-        else get_package_root() / csv_dir_name
+        if csv_root_dir is not None
+        else package_root_str / csv_dir_name
     )
     csv_path = csv_dir / csv_name
 
@@ -50,8 +54,8 @@ def generate_paths(
 
     module_dir = (
         Path(module_root_dir) / module_dir_name
-        if module_root_dir
-        else get_package_root() / module_dir_name
+        if module_root_dir is not None
+        else package_root_str / module_dir_name
     )
     module_dir.mkdir(parents=True, exist_ok=True)
     module_path = module_dir / module_name

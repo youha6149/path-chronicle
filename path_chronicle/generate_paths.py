@@ -80,7 +80,7 @@ def generate_paths(
 
     lines = [
         "from pathlib import Path\n",
-        "\n",
+        "\n\n",
         "class Paths:\n",
         '    """\n',
         "    This class provides paths for various project directories and files.\n",
@@ -101,7 +101,7 @@ def generate_paths(
         lines.append(f"        - {normalize_name(name)}: {path}\n")
 
     lines.append('        """\n')
-    lines.append("        return getattr(Paths, name, None)\n")
+    lines.append('        return getattr(Paths, name, None)  or Path("")\n')
 
     with open(str(module_path), mode="w") as file:
         file.writelines(lines)

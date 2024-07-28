@@ -146,7 +146,7 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
 def generate_expected_content(paths: list[PathEntry]) -> str:
     lines = [
         "from pathlib import Path\n",
-        "\n",
+        "\n\n",
         "class Paths:\n",
         '    """\n',
         "    This class provides paths for various project directories and files.\n",
@@ -165,7 +165,7 @@ def generate_expected_content(paths: list[PathEntry]) -> str:
     for path in paths:
         lines.append(f"        - {path.name}: {path.path}\n")
     lines.append('        """\n')
-    lines.append("        return getattr(Paths, name, None)\n")
+    lines.append('        return getattr(Paths, name, None)  or Path("")\n')
 
     return "".join(lines)
 

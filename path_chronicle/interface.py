@@ -19,8 +19,7 @@ def _common_parser(description: str) -> argparse.ArgumentParser:
         argparse.ArgumentParser: The configured argument parser.
 
     Arguments:
-        name (str): Name of the directory or file to create.
-        parent_dir (str): Parent directory where the directory or file will be created.
+        path (str): Name of the directory or file to create.
         --description (str): Description for the directory or file. Default is an empty string.
         --csv_name (str): Name of the CSV file for storing paths. Default is "paths.csv".
         --csv_root_dir (str | None): Root directory where the CSV file will be stored. Default is None.

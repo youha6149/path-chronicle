@@ -41,6 +41,9 @@ class FsoExpansion:
         """
         self.config = config
         self.package_root_dir = get_package_root()
+        if not self.package_root_dir:
+            raise FileNotFoundError("Package root directory not found.")
+
         self.csv_dir = (
             Path(csv_root_dir) / csv_dir_name
             if csv_root_dir

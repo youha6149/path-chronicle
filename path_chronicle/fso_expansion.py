@@ -197,8 +197,11 @@ class FsoExpansion:
             if target_path:
                 project_root = self.config.get("project_root")
                 if project_root is not None and isinstance(project_root, str):
-                    target_path = target_path.relative_to(Path(project_root))
-                    target_path = Path(project_root) / target_path
+                    project_root_abs_path = Path(project_root)
+
+                    if project_root_abs_path in target_path.parents:
+                        target_path = target_path.relative_to(project_root_abs_path)
+                        target_path = project_root_abs_path / target_path
 
                 self._delete_path(target_path)
             else:
@@ -219,7 +222,7 @@ class FsoExpansion:
             path (str | None): The string representation of the path to find.
 
         Returns:
-            Path | None: The target path if found, otherwise None.
+            Path | None: The target path is absolute or relative from the project root.
         """
         target_path_str: str | None = None
 

@@ -71,10 +71,15 @@ class Config:
 
         Args:
             project_root (str): The project root directory path.
+
+        Note:
+            The project root directory path will always be stored as an absolute path.
         """
         project_root_path = Path(project_root)
 
+        # If the provided path is not absolute, resolve it to an absolute path
         if not project_root_path.is_absolute():
             project_root_path = project_root_path.resolve()
 
+        # Store the project root as an absolute path in the configuration
         self.set("project_root", str(project_root_path))

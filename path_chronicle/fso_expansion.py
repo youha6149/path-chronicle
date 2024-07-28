@@ -74,7 +74,10 @@ class FsoExpansion:
                 print("CSV file is empty. Returning empty paths list.")
                 return paths
 
-            for i, row in df.iterrows():
+            error_paths: list[dict] = []
+            idx_num = 0
+            for _, row in df.iterrows():
+                idx_num += 1
                 try:
                     row_data = row.to_dict()
                     row_data["id"] = int(row_data["id"])
@@ -85,17 +88,25 @@ class FsoExpansion:
                     paths.append(path_entry)
 
                 except ValidationError as e:
-                    print(
-                        f"Error loading CSV row: row number {i}: {e}", file=sys.stderr
-                    )
+                    errors = e.errors()
+                    e_dict = {k: v for k, v in errors[0].items()}
+                    e_dict["idx"] = idx_num
+                    error_paths.append(e_dict)
                     continue
 
+            if error_paths:
+                print(
+                    f"Error loading CSV rows: {error_paths}. "
+                    "Please check the CSV file for errors.",
+                    file=sys.stderr,
+                )
+
         except ValueError as ve:
-            print(f"Error reading CSV file: {ve}", file=sys.stderr)
+            print(f"Error reading CSV file in ValueError: {ve}", file=sys.stderr)
             raise
 
         except Exception as e:
-            print(f"Error reading CSV file: {e}", file=sys.stderr)
+            print(f"Error reading CSV file in Exception: {e}", file=sys.stderr)
 
         return paths
 

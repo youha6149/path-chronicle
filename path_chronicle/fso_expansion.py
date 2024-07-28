@@ -368,3 +368,62 @@ class FsoExpansion:
         """
         print(f"CSV directory: {self.csv_dir}")
         print(f"CSV file path: {self.csv_file}\n")
+
+    def edit_csv_to_add_path(
+        self,
+        path: str,
+        description: str | None,
+    ) -> None:
+        """
+        Adds a new path data to the CSV file.
+
+        Args:
+            path (str): The path to add.
+            description (str | None): A description of the path. Default is None.
+        """
+        try:
+            path_obj = Path(path).resolve()
+            path_entry = PathEntry(
+                id=max([p.id for p in self.paths], default=0) + 1,
+                name=path_obj.name,
+                path=str(path_obj),
+                description=description,
+            )
+            self.paths.append(path_entry)
+            self._save_paths()
+            print(f"Path added: {path_entry}")
+        except Exception as e:
+            print(f"Error adding path entry: {e}", file=sys.stderr)
+
+    def edit_csv_to_remove_path(
+        self,
+        id: int | None = None,
+        name: str | None = None,
+        path: str | None = None,
+    ) -> None:
+        """
+        Removes a path data from the CSV file.
+
+        Args:
+            id (int): The ID of the path entry to remove.
+            name (str): The name of the path entry to remove.
+            path (str): The path of the path entry to remove.
+        """
+        try:
+
+            if id and [p for p in self.paths if p.id == id]:
+                self.paths = [p for p in self.paths if p.id != id]
+
+            elif name and [p for p in self.paths if p.name == name]:
+                self.paths = [p for p in self.paths if p.name != name]
+
+            elif path and [p for p in self.paths if p.path == path]:
+                self.paths = [p for p in self.paths if p.path != path]
+
+            else:
+                raise ValueError("No valid identifier provided to remove path.")
+
+            self._save_paths()
+            print(f"Path removed: {id or name or path}")
+        except Exception as e:
+            print(f"Error removing path entry: {e}", file=sys.stderr)

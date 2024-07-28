@@ -196,3 +196,39 @@ def test_set_pj_root_entry(setup_config_file, setup_env):
         content = file.read()
         assert "project_root" in content
         assert test_project_root_path in content
+
+
+def test_edit_csv_to_add_path_entry(setup_csv_header_only, setup_env):
+    """
+    Test editing the CSV to add a path via the command line entry point.
+
+    Args:
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The path should be added to the CSV and the output should indicate success.
+    """
+
+    command = f"poetry run pcaddtocsv test_dir --description 'Test directory edited' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
+    output = run_command(command, cwd=PROJECT_ROOT)
+
+    assert "Path added:" in output, "Should indicate that the path was updated."
+
+
+def test_edit_csv_to_remove_path_entry(setup_csv_1_data, setup_env):
+    """
+    Test editing the CSV to remove a path via the command line entry point.
+
+    Args:
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The path should be removed from the CSV and the output should indicate success.
+    """
+
+    command = f"poetry run pcrmtocsv --id 1 --csv_name {setup_csv_1_data.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
+    output = run_command(command, cwd=PROJECT_ROOT)
+
+    assert "Path removed:" in output, "Should indicate that the path was removed."

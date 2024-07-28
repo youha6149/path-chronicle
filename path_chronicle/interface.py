@@ -297,3 +297,73 @@ def set_project_root_entry():
 
     except Exception as e:
         print(f"Error in set_project_root_entry function: {e}", file=sys.stderr)
+
+
+def edit_csv_to_add_path_entry():
+    """
+    Add a path to the CSV file.
+
+    Example usage:
+        poetry run pcaddtocsv ./my_temp_directory --description "Temporary directory for storage"
+    """
+    try:
+        parser = _common_parser("Add a path to the CSV file.")
+        args = parser.parse_args()
+
+        pm = _create_fso_expansion(args)
+        pm.edit_csv_to_add_path(args.path, args.description)
+
+    except Exception as e:
+        print(f"Error in add_path_to_csv_entry function: {e}", file=sys.stderr)
+
+
+def edit_csv_to_remove_path_entry():
+    """
+    Remove a path from the CSV file.
+
+    Example usage:
+        poetry run pcrmtocsv --id 1
+        poetry run pcrmtocsv --name example_name
+        poetry run pcrmtocsv --path /example/path/to/delete
+    """
+    try:
+        parser = argparse.ArgumentParser(
+            description="Remove a path from the CSV file based on ID, name, or path."
+        )
+        parser.add_argument("--id", type=int, help="ID of the path to remove")
+        parser.add_argument("--name", help="Name of the path to remove")
+        parser.add_argument("--path", help="Path to remove")
+        parser.add_argument(
+            "--csv_name",
+            default="paths.csv",
+            help="Name of the CSV file for storing paths",
+        )
+        parser.add_argument(
+            "--csv_root_dir",
+            help="Root directory where the CSV file is stored",
+            default=None,
+        )
+        parser.add_argument(
+            "--csv_dir_name",
+            default="csv",
+            help="Name of the directory containing the CSV file",
+        )
+        parser.add_argument(
+            "--config_root_dir",
+            default=None,
+            help="Name of the directory containing the CSV file",
+        )
+        args = parser.parse_args()
+
+        if args.id is None and args.name is None and args.path is None:
+            print("Error: At least one of --id, --name, or --path must be provided.")
+            return
+
+        pm = _create_fso_expansion(args)
+        pm.edit_csv_to_remove_path(id=args.id, name=args.name, path=args.path)
+
+    except Exception as e:
+        print(
+            f"Error in remove_path_from_csv_entry function: {e}",
+            file=sys.stderr,
+        )

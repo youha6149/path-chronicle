@@ -478,3 +478,50 @@ def test_remove_path_empty_paths_list(
         "No paths available to remove.\nThe CSV file is either non-existent or empty.\n"
         == output
     ), "Should indicate that no processing is to be done"
+
+
+def test_edit_csv_to_add_path(setup_csv_header_only: Path, setup_env: Path):
+    """
+    Test that FsoExpansion can edit the CSV to add a path.
+
+    Args:
+        setup_csv_header_only (Path): The path to the header only temporary CSV file.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The path should be added to the paths list and the CSV file.
+    """
+    pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
+    pm.edit_csv_to_add_path("test_dir", "Test directory description")
+
+    assert len(pm.paths) == 1, "Paths list should contain one entry."
+    assert pm.paths[0].id == 1, "ID should be 1."
+    assert pm.paths[0].name == "test_dir", "Name should match the CSV data."
+    assert pm.paths[0].path == str(
+        setup_env / "test_dir"
+    ), "Path should match the CSV data."
+    assert (
+        pm.paths[0].description == "Test directory description"
+    ), "Description should match the CSV data."
+
+
+def test_edit_csv_to_remove_path(setup_csv_1_data: Path, setup_env: Path):
+    """
+    Test that FsoExpansion can edit the CSV to remove a path.
+
+    Args:
+        setup_csv_1_data (Path): The path to the temporary CSV file with one path.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        The path should be removed from the paths list and the CSV file.
+    """
+    pm = create_fso_expansion(setup_csv_1_data.name, setup_env)
+    pm.edit_csv_to_remove_path(id=1)
+
+    assert len(pm.paths) == 0, "Paths list should be empty after removing the path."
+
+    with open(pm.csv_file, mode="r") as file:
+        reader = csv.DictReader(file)
+        rows = list(reader)
+        assert len(rows) == 0, "CSV should be empty after removing the path."

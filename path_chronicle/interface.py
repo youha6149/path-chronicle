@@ -29,11 +29,7 @@ def _common_parser(description: str) -> argparse.ArgumentParser:
         --config_root_dir (str | None): Root directory where the config file is located. Default is None.
     """
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("name", help="Name of the directory or file to create")
-    parser.add_argument(
-        "parent_dir",
-        help="Parent directory where the directory or file will be created",
-    )
+    parser.add_argument("path", help="Name of the directory or file to create")
     parser.add_argument(
         "--description", default="", help="Description for the directory or file"
     )
@@ -89,7 +85,7 @@ def create_dir_and_save_csv_entry():
     Create a directory and optionally saves the path info to the CSV file.
 
     Example usage:
-        poetry run pcmkdir my_temp_directory ./ --description "Temporary directory for storage"
+        poetry run pcmkdir ./my_temp_directory --description "Temporary directory for storage"
     """
     try:
         parser = _common_parser("Create a directory.")
@@ -97,9 +93,7 @@ def create_dir_and_save_csv_entry():
 
         pm = _create_fso_expansion(args)
         is_save_to_csv = not args.no_save
-        pm.create_dir_and_save_csv(
-            args.name, args.parent_dir, args.description, is_save_to_csv
-        )
+        pm.create_dir_and_save_csv(args.path, args.description, is_save_to_csv)
 
     except Exception as e:
         print(f"Error in create_dir_and_save_csv_entry function: {e}", file=sys.stderr)
@@ -110,7 +104,7 @@ def create_file_and_save_csv_entry():
     Create a file and optionally saves the path info to the CSV file.
 
     Example usage:
-        poetry run pctouch another_file.txt my_temp_directory --description "Another file for testing"
+        poetry run pctouch ./my_temp_directory/another_file.txt --description "Another file for testing"
     """
     try:
         parser = _common_parser("Create a file.")
@@ -118,9 +112,7 @@ def create_file_and_save_csv_entry():
 
         pm = _create_fso_expansion(args)
         is_save_to_csv = not args.no_save
-        pm.create_file_and_save_csv(
-            args.name, args.parent_dir, args.description, is_save_to_csv
-        )
+        pm.create_file_and_save_csv(args.path, args.description, is_save_to_csv)
 
     except Exception as e:
         print(f"Error in create_file_and_save_csv_entry function: {e}", file=sys.stderr)

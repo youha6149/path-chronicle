@@ -72,6 +72,7 @@ def generate_paths(
         try:
             row_data = row.to_dict()
             row_data["id"] = int(row_data["id"])
+            row_data = {k: v if pd.notna(v) else None for k, v in row_data.items()}
             path_entry = PathEntry(**row_data)
             paths[path_entry.name] = path_entry.path
         except ValidationError as ve:

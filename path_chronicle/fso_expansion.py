@@ -115,8 +115,7 @@ class FsoExpansion:
 
     def _create_path_and_save_csv(
         self,
-        name: str,
-        parent_dir: str,
+        path: Path,
         description: str,
         create_function: Callable[[Path], None],
         is_save_to_csv: bool = True,
@@ -125,18 +124,18 @@ class FsoExpansion:
         Creates a new path and optionally saves the path info to the CSV file.
 
         Args:
-            name (str): The name of the path to create.
-            parent_dir (str): The path of the parent directory.
+            path (str): The path to create.
             description (str): A description of the path.
-            create_function (Callable[[Path], None]): A function to create the path.
+            create_function (Callable): The function to create the path.
             is_save_to_csv (bool): Whether to save to the CSV file. Default is True.
 
         Returns:
-            Path | None: The created path object. None if an error occurs.
+            Path | None: The created path. None if an error occurs.
         """
         try:
-            parent_path = Path(parent_dir)
-            new_path = (parent_path / name).resolve()
+
+            new_path = Path(path).resolve()
+            name = new_path.name
             project_root = self.config.get("project_root")
 
             is_relative = False
@@ -293,8 +292,7 @@ class FsoExpansion:
 
     def create_dir_and_save_csv(
         self,
-        name: str,
-        parent_dir: str,
+        path: str,
         description: str = "",
         is_save_to_csv: bool = True,
     ) -> Path | None:
@@ -311,8 +309,7 @@ class FsoExpansion:
             Path | None: The created directory path. None if an error occurs.
         """
         return self._create_path_and_save_csv(
-            name,
-            parent_dir,
+            Path(path),
             description,
             lambda p: p.mkdir(parents=True, exist_ok=True),
             is_save_to_csv,
@@ -320,8 +317,7 @@ class FsoExpansion:
 
     def create_file_and_save_csv(
         self,
-        name: str,
-        parent_dir: str,
+        path: str,
         description: str = "",
         is_save_to_csv: bool = True,
     ) -> Path | None:
@@ -338,8 +334,7 @@ class FsoExpansion:
             Path | None: The created file path. None if an error occurs.
         """
         return self._create_path_and_save_csv(
-            name,
-            parent_dir,
+            Path(path),
             description,
             lambda p: p.touch(exist_ok=True),
             is_save_to_csv,

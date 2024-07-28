@@ -124,9 +124,9 @@ def test_create_dir_and_save_csv(setup_csv_header_only: Path, setup_env: Path) -
         The directory should be created and the path should be saved to the CSV file.
     """
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
-    new_dir = pm.create_dir_and_save_csv(
-        "test_dir", str(setup_env), "Test directory description"
-    )
+    target_path = setup_env / "test_dir"
+    print(target_path)
+    new_dir = pm.create_dir_and_save_csv(str(target_path), "Test directory description")
 
     assert new_dir is not None, "new_dir should not be None."
     assert new_dir.exists() and new_dir.is_dir(), "Directory should be created."
@@ -160,9 +160,8 @@ def test_create_file_and_save_csv(setup_csv_header_only: Path, setup_env: Path) 
         The file should be created and the path should be saved to the CSV file.
     """
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
-    new_file = pm.create_file_and_save_csv(
-        "test_file.txt", str(setup_env), "Test file description"
-    )
+    target_path = setup_env / "test_file.txt"
+    new_file = pm.create_file_and_save_csv(str(target_path), "Test file description")
 
     assert new_file is not None, "new_file should not be None."
     assert new_file.exists() and new_file.is_file(), "File should be created."
@@ -198,9 +197,9 @@ def test_create_dir_no_save_csv(setup_csv_header_only: Path, setup_env: Path) ->
         the path should not be saved to the CSV file.
     """
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
+    target_path = setup_env / "test_dir_nosave"
     new_dir = pm.create_dir_and_save_csv(
-        "test_dir_nosave",
-        str(setup_env),
+        str(target_path),
         "Test directory no save",
         is_save_to_csv=False,
     )
@@ -229,9 +228,9 @@ def test_create_file_no_save_csv(setup_csv_header_only: Path, setup_env: Path) -
         The file should be created but the path should not be saved to the CSV file.
     """
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
+    target_path = setup_env / "test_file_nosave.txt"
     new_file = pm.create_file_and_save_csv(
-        "test_file_nosave.txt",
-        str(setup_env),
+        str(target_path),
         "Test file no save",
         is_save_to_csv=False,
     )

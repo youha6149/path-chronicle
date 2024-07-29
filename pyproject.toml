@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "path-chronicle"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["Suzuki Kakeru <kakeruuuuuu0114@gmail.com>"]
 readme = "README.md"
@@ -28,6 +28,12 @@ flake8 = "^7.1.0"
 isort = "^5.13.2"
 mypy = "^1.11.0"
 pandas-stubs = "^2.2.2.240603"
+
+
+[[tool.poetry.source]]
+name = "test-pypi"
+url = "https://test.pypi.org/simple"
+priority = "primary"
 
 [virtualenvs]
 in-project = true

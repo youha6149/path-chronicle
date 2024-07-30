@@ -36,6 +36,30 @@ def run_command(command, cwd=None):
     return result.stdout + result.stderr
 
 
+def build_command(
+    base_command: str,
+    target: Path,
+    description: str,
+    setup_csv_header_only: Path,
+    setup_env: Path,
+) -> str:
+    return (
+        f"poetry run {base_command} {target} --description '{description}' "
+        f"--csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} "
+        f"--csv_dir_name csv --config_root_dir {setup_env}"
+    )
+
+
+def build_simple_command(
+    base_command: str, setup_csv_header_only: Path, setup_env: Path
+) -> str:
+    return (
+        f"poetry run {base_command} "
+        f"--csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} "
+        f"--csv_dir_name csv --config_root_dir {setup_env}"
+    )
+
+
 def test_create_dir_entry(setup_csv_header_only, setup_env):
     """
     Test the creation of a directory via the command line entry point.
@@ -48,10 +72,12 @@ def test_create_dir_entry(setup_csv_header_only, setup_env):
         The directory should be created and the output should indicate success.
     """
     target_path = setup_env / "test_dir"
-    command = f"poetry run pcmkdir {target_path} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
+    command = build_command(
+        "pcmkdir", target_path, "Test directory", setup_csv_header_only, setup_env
+    )
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path created at" in output
-    assert os.path.exists(os.path.join(setup_env, "test_dir"))
+    assert os.path.exists(target_path)
 
 
 def test_create_file_entry(setup_csv_header_only, setup_env):
@@ -66,10 +92,12 @@ def test_create_file_entry(setup_csv_header_only, setup_env):
         The file should be created and the output should indicate success.
     """
     target_path = setup_env / "test_file.txt"
-    command = f"poetry run pctouch {target_path} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
+    command = build_command(
+        "pctouch", target_path, "Test file", setup_csv_header_only, setup_env
+    )
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path created at" in output
-    assert os.path.exists(os.path.join(setup_env, "test_file.txt"))
+    assert os.path.exists(target_path)
 
 
 def test_list_paths_entry(setup_csv_header_only, setup_env):
@@ -85,16 +113,20 @@ def test_list_paths_entry(setup_csv_header_only, setup_env):
     """
     target_dir = setup_env / "test_dir"
     run_command(
-        f"poetry run pcmkdir {target_dir} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}",
+        build_command(
+            "pcmkdir", target_dir, "Test directory", setup_csv_header_only, setup_env
+        ),
         cwd=PROJECT_ROOT,
     )
     target_file = setup_env / "test_file.txt"
     run_command(
-        f"poetry run pctouch {target_file} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}",
+        build_command(
+            "pctouch", target_file, "Test file", setup_csv_header_only, setup_env
+        ),
         cwd=PROJECT_ROOT,
     )
 
-    command = f"poetry run pcpathslist --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
+    command = build_simple_command("pcpathslist", setup_csv_header_only, setup_env)
     output = run_command(command, cwd=PROJECT_ROOT)
 
     lines = output.split("\n")
@@ -120,27 +152,34 @@ def test_remove_path_entry(setup_csv_header_only, setup_env):
     """
     target_dir = setup_env / "test_dir"
     run_command(
-        f"poetry run pcmkdir {target_dir} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_dir_name csv --csv_root_dir {setup_env} --config_root_dir {setup_env}",
+        build_command(
+            "pcmkdir", target_dir, "Test directory", setup_csv_header_only, setup_env
+        ),
         cwd=PROJECT_ROOT,
     )
 
-    command = f"poetry run pcrmpath --name test_dir --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
-
+    command = build_simple_command(
+        f"pcrmpath --name test_dir", setup_csv_header_only, setup_env
+    )
     output = run_command(command, cwd=PROJECT_ROOT)
 
     assert "Path deleted:" in output, "Should indicate that the dir was deleted."
-    assert not os.path.exists(os.path.join(setup_env, "test_dir"))
+    assert not os.path.exists(target_dir)
 
     target_file = setup_env / "test_file.txt"
     run_command(
-        f"poetry run pctouch {target_file} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_dir_name csv --csv_root_dir {setup_env} --config_root_dir {setup_env}",
+        build_command(
+            "pctouch", target_file, "Test file", setup_csv_header_only, setup_env
+        ),
         cwd=PROJECT_ROOT,
     )
 
-    command = f"poetry run pcrmpath --name test_file.txt --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
+    command = build_simple_command(
+        f"pcrmpath --name test_file.txt", setup_csv_header_only, setup_env
+    )
     output = run_command(command, cwd=PROJECT_ROOT)
     assert "Path deleted:" in output, "Should indicate that the file was deleted."
-    assert not os.path.exists(os.path.join(setup_env, "test_file.txt"))
+    assert not os.path.exists(target_file)
 
 
 def test_generate_paths_entry(setup_csv_header_only, setup_env):
@@ -156,17 +195,24 @@ def test_generate_paths_entry(setup_csv_header_only, setup_env):
     """
     target_dir = setup_env / "test_dir"
     run_command(
-        f"poetry run pcmkdir {target_dir} --description 'Test directory' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}",
+        build_command(
+            "pcmkdir", target_dir, "Test directory", setup_csv_header_only, setup_env
+        ),
         cwd=PROJECT_ROOT,
     )
 
     target_file = setup_env / "test_file.txt"
     run_command(
-        f"poetry run pctouch {target_file} --description 'Test file' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}",
+        build_command(
+            "pctouch", target_file, "Test file", setup_csv_header_only, setup_env
+        ),
         cwd=PROJECT_ROOT,
     )
 
-    command = f"poetry run gpaths --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --module_name paths.py --module_root_dir {setup_env} --module_dir_name path_module"
+    command = (
+        f"poetry run gpaths --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} "
+        f"--csv_dir_name csv --module_name paths.py --module_root_dir {setup_env} --module_dir_name path_module"
+    )
     run_command(command, cwd=PROJECT_ROOT)
 
     assert os.path.exists(
@@ -207,10 +253,16 @@ def test_edit_csv_to_add_path_entry(setup_csv_header_only, setup_env):
         setup_env (Path): The temporary environment directory.
 
     Asserts:
-        The path should be added to the CSV and the output should indicate success.
+        The path should be added to the CSV and the output should indicate success
     """
 
-    command = f"poetry run pcaddtocsv test_dir --description 'Test directory edited' --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
+    command = build_command(
+        "pcaddtocsv",
+        "test_dir",
+        "Test directory edited",
+        setup_csv_header_only,
+        setup_env,
+    )
     output = run_command(command, cwd=PROJECT_ROOT)
 
     assert "Path added:" in output, "Should indicate that the path was updated."
@@ -227,8 +279,7 @@ def test_edit_csv_to_remove_path_entry(setup_csv_1_data, setup_env):
     Asserts:
         The path should be removed from the CSV and the output should indicate success.
     """
-
-    command = f"poetry run pcrmtocsv --id 1 --csv_name {setup_csv_1_data.name} --csv_root_dir {setup_env} --csv_dir_name csv --config_root_dir {setup_env}"
+    command = build_simple_command(f"pcrmtocsv --id 1", setup_csv_1_data, setup_env)
     output = run_command(command, cwd=PROJECT_ROOT)
 
     assert "Path removed:" in output, "Should indicate that the path was removed."

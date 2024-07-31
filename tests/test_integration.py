@@ -191,7 +191,7 @@ def test_generate_paths_entry(setup_csv_header_only, setup_env):
         setup_env (Path): The temporary environment directory.
 
     Asserts:
-        The generated paths.py file should contain the paths and the output should indicate success.
+        The generated path_archives.py file should contain the paths and the output should indicate success.
     """
     target_dir = setup_env / "test_dir"
     run_command(
@@ -209,15 +209,21 @@ def test_generate_paths_entry(setup_csv_header_only, setup_env):
         cwd=PROJECT_ROOT,
     )
 
+    module_name = "path_archives.py"
+
     command = (
         f"poetry run gpaths --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} "
-        f"--csv_dir_name csv --module_name paths.py --module_root_dir {setup_env} --module_dir_name path_module"
+        f"--csv_dir_name csv --module_name {module_name} --module_root_dir {setup_env} --module_dir_name path_module"
     )
     run_command(command, cwd=PROJECT_ROOT)
 
     assert os.path.exists(
-        setup_env / "path_module" / "paths.py"
-    ), f"File {setup_env / 'path_module' / 'paths.py'} does not exist"
+        setup_env / "path_module" / module_name
+    ), f"File {setup_env / 'path_module' / module_name} does not exist"
+
+    assert os.path.exists(
+        setup_env / "path_module" / "__init__.py"
+    ), f"File {setup_env / 'path_module' / '__init__.py'} does not exist"
 
 
 def test_set_pj_root_entry(setup_config_file, setup_env):

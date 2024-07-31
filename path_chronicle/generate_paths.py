@@ -57,7 +57,7 @@ def generate_paths(
 
     lines = [
         "from pathlib import Path\n",
-        "\n",
+        "\n\n",
         "class PathArchives:\n",
         '    """\n',
         "    This class provides paths for various project directories and files.\n",

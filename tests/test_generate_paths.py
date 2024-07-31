@@ -146,7 +146,7 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
 def generate_expected_content_for_path_archives(paths: list[PathEntry]) -> str:
     lines = [
         "from pathlib import Path\n",
-        "\n",
+        "\n\n",
         "class PathArchives:\n",
         '    """\n',
         "    This class provides paths for various project directories and files.\n",

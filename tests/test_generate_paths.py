@@ -10,7 +10,7 @@ from path_chronicle.schema import PathEntry
 def setup_module_file(setup_env):
     module_dir = setup_env / "path_module"
     module_dir.mkdir(parents=True, exist_ok=True)
-    module_file = module_dir / "paths.py"
+    module_file = module_dir / "path_archives.py"
     return module_file
 
 
@@ -143,11 +143,11 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
         )
 
 
-def generate_expected_content(paths: list[PathEntry]) -> str:
+def generate_expected_content_for_path_archives(paths: list[PathEntry]) -> str:
     lines = [
         "from pathlib import Path\n",
         "\n\n",
-        "class Paths:\n",
+        "class PathArchives:\n",
         '    """\n',
         "    This class provides paths for various project directories and files.\n",
         '    """\n',
@@ -165,8 +165,36 @@ def generate_expected_content(paths: list[PathEntry]) -> str:
     for path in paths:
         lines.append(f"        - {path.name}: {path.path}\n")
     lines.append('        """\n')
-    lines.append('        return getattr(Paths, name, None)  or Path("")\n')
+    lines.append('        return getattr(PathArchives, name, None) or Path("")\n')
 
+    return "".join(lines)
+
+
+def generate_expected_init_content(module_name: str) -> str:
+    lines = [
+        "import importlib.util\n",
+        "import sys\n",
+        "from pathlib import Path\n",
+        "\n\n",
+        "def load_generated_paths_module():\n",
+        f'    module_path = Path(__file__).parent / "{module_name}"\n',
+        "    if not module_path.exists():\n",
+        '        raise FileNotFoundError(f"Generated paths module not found: {module_path}")\n',
+        "\n",
+        "    spec = importlib.util.spec_from_file_location(\n",
+        f'        "path_module.{module_name.replace(".py", "")}", module_path\n',
+        "    )\n",
+        "    module = importlib.util.module_from_spec(spec)\n",
+        f'    sys.modules["path_module.{module_name.replace(".py", "")}"] = module\n',
+        "    spec.loader.exec_module(module)\n",
+        "    return module\n",
+        "\n\n",
+        "try:\n",
+        "    paths = load_generated_paths_module()\n",
+        "    PathArchives = paths.PathArchives\n",
+        "except FileNotFoundError:\n",
+        '    print("Generated paths module not found. Run `generate_paths` to create it.")\n',
+    ]
     return "".join(lines)
 
 
@@ -203,8 +231,19 @@ def test_generate_paths_with_variable_data(
     with open(setup_module_file, mode="r") as file:
         content = file.read()
 
-    expected_content = generate_expected_content(setup_test_dir_paths)
+    expected_content = generate_expected_content_for_path_archives(setup_test_dir_paths)
 
     assert (
-        content == expected_content
+        content.strip() == expected_content.strip()
     ), "Generated paths.py content does not match expected content for CSV with data."
+
+    init_file_path = setup_module_file.parent / "__init__.py"
+
+    with open(init_file_path, mode="r") as init_file:
+        init_content = init_file.read()
+
+    expected_init_content = generate_expected_init_content(setup_module_file.name)
+
+    assert (
+        init_content.strip() == expected_init_content.strip()
+    ), "__init__.py content does not match expected content."

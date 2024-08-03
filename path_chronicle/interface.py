@@ -239,7 +239,9 @@ def generate_paths_entry():
             default=None,
         )
         parser.add_argument(
-            "--module_name", default="paths.py", help="Name of the output Python file"
+            "--module_name",
+            default="path_archives.py",
+            help="Name of the output Python file",
         )
         parser.add_argument(
             "--module_dir_name",

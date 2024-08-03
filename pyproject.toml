@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "path-chronicle"
-version = "0.1.2"
+version = "0.1.4"
 description = ""
 authors = ["Suzuki Kakeru <kakeruuuuuu0114@gmail.com>"]
 readme = "README.md"

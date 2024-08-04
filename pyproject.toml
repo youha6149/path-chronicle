@@ -1,13 +1,42 @@
 [tool.poetry]
 name = "path-chronicle"
-version = "0.1.1"
+version = "0.1.4"
 description = ""
 authors = ["Suzuki Kakeru <kakeruuuuuu0114@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+pydantic = "^2.8.2"
+pandas = "^2.2.2"
 
+[tool.poetry.scripts]
+pcmkdir = 'path_chronicle.interface:create_dir_and_save_csv_entry'
+pctouch = 'path_chronicle.interface:create_file_and_save_csv_entry'
+pcpathslist = 'path_chronicle.interface:list_paths_entry'
+pcrmpath = 'path_chronicle.interface:remove_path_and_from_csv_entry'
+gpaths = 'path_chronicle.interface:generate_paths_entry'
+pcsetpjroot = 'path_chronicle.interface:set_project_root_entry'
+pcaddtocsv = 'path_chronicle.interface:edit_csv_to_add_path_entry'
+pcrmtocsv = 'path_chronicle.interface:edit_csv_to_remove_path_entry'
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+black = "^24.4.2"
+flake8 = "^7.1.0"
+isort = "^5.13.2"
+mypy = "^1.11.0"
+pandas-stubs = "^2.2.2.240603"
+
+
+[[tool.poetry.source]]
+name = "test-pypi"
+url = "https://test.pypi.org/simple"
+priority = "primary"
+
+[virtualenvs]
+in-project = true
 
 [build-system]
 requires = ["poetry-core"]

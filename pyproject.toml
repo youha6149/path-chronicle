@@ -20,7 +20,6 @@ pcsetpjroot = 'path_chronicle.interface:set_project_root_entry'
 pcaddtocsv = 'path_chronicle.interface:edit_csv_to_add_path_entry'
 pcrmtocsv = 'path_chronicle.interface:edit_csv_to_remove_path_entry'
 
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
 black = "^24.4.2"
@@ -29,11 +28,10 @@ isort = "^5.13.2"
 mypy = "^1.11.0"
 pandas-stubs = "^2.2.2.240603"
 
-
 [[tool.poetry.source]]
 name = "test-pypi"
 url = "https://test.pypi.org/simple"
-priority = "primary"
+priority = "supplemental"
 
 [virtualenvs]
 in-project = true

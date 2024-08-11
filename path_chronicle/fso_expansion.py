@@ -6,7 +6,6 @@ from pathlib import Path
 import pandas as pd
 from pydantic import ValidationError
 
-from path_chronicle.config import Config
 from path_chronicle.schema import PathEntry, check_header
 from path_chronicle.utils import get_package_root
 
@@ -24,31 +23,27 @@ class FsoExpansion:
 
     def __init__(
         self,
-        config: Config,
+        project_root_str: str,
         csv_name: str = "paths.csv",
-        csv_dir_name: str = "csv",
-        csv_root_dir: str | None = None,
+        csv_dir_name: str = "path_archives",
     ):
         """
-        Constructor for the FsoExpansion class.
+        Initializes the FsoExpansion object.
 
         Args:
+            project_root_str (str): The project root directory path.
             csv_name (str): The name of the CSV file. Default is "paths.csv".
-            csv_dir_name (str): The name of the directory where the CSV file is stored.
-                                Default is "csv".
-            csv_root_dir (str | None): The root directory path for the CSV file.
-                                       Default is None.
+            csv_dir_name (str): The name of the directory where CSV files are stored.
         """
-        self.config = config
+
+        self.project_root_str = project_root_str
+        self.project_root_abs_path = Path(self.project_root_str)
+
         self.package_root_dir = get_package_root()
         if not self.package_root_dir:
             raise FileNotFoundError("Package root directory not found.")
 
-        self.csv_dir = (
-            Path(csv_root_dir) / csv_dir_name
-            if csv_root_dir
-            else self.package_root_dir / csv_dir_name
-        )
+        self.csv_dir = self.project_root_abs_path / csv_dir_name
         self.csv_dir.mkdir(parents=True, exist_ok=True)
         self.csv_file = self.csv_dir / csv_name
         self.paths = self._load_paths()
@@ -148,23 +143,20 @@ class FsoExpansion:
         """
         try:
 
-            new_path = Path(path).resolve()
-            name = new_path.name
-            project_root = self.config.get("project_root")
+            # memo: Regardless of whether it is a relative or absolute path,
+            # it is converted to an absolute path from
+            # the project root and then converted to a path.
+            new_path = path
+            if new_path.is_absolute():
+                if not new_path.is_relative_to(self.project_root_abs_path):
+                    raise ValueError("The provided path is outside the project root.")
+            else:
+                new_path = self.project_root_abs_path / new_path
 
-            is_relative = False
-            if project_root is not None and isinstance(project_root, str):
-                print(f"Project root directory: {Path(project_root)}")
-                new_path = new_path.relative_to(Path(project_root))
-                create_path = Path(project_root) / new_path
-                is_relative = True
-
-            if not is_relative:
-                create_path = new_path
-
+            create_path = new_path.resolve()
             path_entry = PathEntry(
                 id=max([p.id for p in self.paths], default=0) + 1,
-                name=name,
+                name=create_path.name,
                 path=str(new_path),
                 description=description,
             )
@@ -188,7 +180,10 @@ class FsoExpansion:
             return None
 
     def remove_path_and_from_csv(
-        self, id: int | None = None, name: str | None = None, path: str | None = None
+        self,
+        id: int | None = None,
+        name: str | None = None,
+        path: str | None = None,
     ) -> None:
         """
         Removes a path based on the specified ID, name, or path,
@@ -208,13 +203,9 @@ class FsoExpansion:
             target_path = self._find_target_path(id, name, path)
 
             if target_path:
-                project_root = self.config.get("project_root")
-                if project_root is not None and isinstance(project_root, str):
-                    project_root_abs_path = Path(project_root)
-
-                    if project_root_abs_path in target_path.parents:
-                        target_path = target_path.relative_to(project_root_abs_path)
-                        target_path = project_root_abs_path / target_path
+                if self.project_root_abs_path in target_path.parents:
+                    target_path = target_path.relative_to(self.project_root_abs_path)
+                    target_path = self.project_root_abs_path / target_path
 
                 self._delete_path(target_path)
             else:
@@ -224,7 +215,10 @@ class FsoExpansion:
             print(f"Error deleting path: {e}", file=sys.stderr)
 
     def _find_target_path(
-        self, id: int | None = None, name: str | None = None, path: str | None = None
+        self,
+        id: int | None = None,
+        name: str | None = None,
+        path: str | None = None,
     ) -> Path | None:
         """
         Finds the target path based on the specified ID, name, or path.

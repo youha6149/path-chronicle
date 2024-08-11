@@ -36,7 +36,7 @@ def _common_parser(description: str) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--csv_dir_name",
-        default="csv",
+        default="path_archives",
         help="Name of the directory containing the CSV file",
     )
     parser.add_argument(
@@ -134,7 +134,7 @@ def list_paths_entry():
         )
         parser.add_argument(
             "--csv_dir_name",
-            default="csv",
+            default="path_archives",
             help="Name of the directory containing the CSV file",
         )
         parser.add_argument(
@@ -176,7 +176,7 @@ def remove_path_and_from_csv_entry():
         )
         parser.add_argument(
             "--csv_dir_name",
-            default="csv",
+            default="path_archives",
             help="Name of the directory containing the CSV file",
         )
         parser.add_argument(
@@ -219,7 +219,7 @@ def generate_paths_entry():
         )
         parser.add_argument(
             "--csv_dir_name",
-            default="csv",
+            default="path_archives",
             help="Name of the directory containing the CSV file",
         )
         parser.add_argument(
@@ -331,7 +331,7 @@ def edit_csv_to_remove_path_entry():
         )
         parser.add_argument(
             "--csv_dir_name",
-            default="csv",
+            default="path_archives",
             help="Name of the directory containing the CSV file",
         )
         parser.add_argument(

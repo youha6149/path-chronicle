@@ -41,23 +41,21 @@ def build_command(
     base_command: str,
     target: Path,
     description: str,
-    setup_csv_header_only: Path,
+    csv_path: Path,
     setup_env: Path,
 ) -> str:
     return (
         f"poetry run {base_command} {target} --description '{description}' "
-        f"--csv_name {setup_csv_header_only.name} "
-        f"--csv_dir_name csv --config_root_dir {setup_env}"
+        f"--csv_name {csv_path.name} "
+        f"--csv_dir_name path_archives --config_root_dir {setup_env}"
     )
 
 
-def build_simple_command(
-    base_command: str, setup_csv_header_only: Path, setup_env: Path
-) -> str:
+def build_simple_command(base_command: str, csv_path: Path, setup_env: Path) -> str:
     return (
         f"poetry run {base_command} "
-        f"--csv_name {setup_csv_header_only.name} "
-        f"--csv_dir_name csv --config_root_dir {setup_env}"
+        f"--csv_name {csv_path.name} "
+        f"--csv_dir_name path_archives --config_root_dir {setup_env}"
     )
 
 
@@ -228,18 +226,21 @@ def test_generate_paths_entry(setup_csv_header_only, setup_env):
     module_name = "path_archives.py"
 
     command = (
-        f"poetry run gpaths --csv_name {setup_csv_header_only.name} --csv_root_dir {setup_env} "
-        f"--csv_dir_name csv --module_name {module_name} --module_root_dir {setup_env} --module_dir_name path_module"
+        f"poetry run gpaths "
+        f"--config_root_dir {setup_env} "
+        f"--csv_name {setup_csv_header_only.name} "
+        f"--path_archives_dir_name path_archives "
+        f"--module_name {module_name}"
     )
     run_command(command, cwd=PROJECT_ROOT)
 
     assert os.path.exists(
-        setup_env / "path_module" / module_name
-    ), f"File {setup_env / 'path_module' / module_name} does not exist"
+        setup_env / "path_archives" / module_name
+    ), f"File {setup_env / 'path_archives' / module_name} does not exist"
 
     assert os.path.exists(
-        setup_env / "path_module" / "__init__.py"
-    ), f"File {setup_env / 'path_module' / '__init__.py'} does not exist"
+        setup_env / "path_archives" / "__init__.py"
+    ), f"File {setup_env / 'path_archives' / '__init__.py'} does not exist"
 
 
 def test_set_pj_root_entry(setup_config_file, setup_env):

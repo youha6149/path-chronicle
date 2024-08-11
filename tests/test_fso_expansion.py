@@ -6,17 +6,14 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from path_chronicle.config import Config
 from path_chronicle.fso_expansion import FsoExpansion
 from path_chronicle.schema import PathEntry
 
 
 def create_fso_expansion(csv_name: str, setup_env: Path) -> FsoExpansion:
-    config = Config(setup_env)
     return FsoExpansion(
-        config=config,
+        project_root_str=str(setup_env),
         csv_name=csv_name,
-        csv_root_dir=str(setup_env),
         csv_dir_name="csv",
     )
 

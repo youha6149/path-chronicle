@@ -206,11 +206,15 @@ def generate_paths_entry():
 
     Example usage:
         poetry run gpaths
-        poetry run gpaths --csv_root_dir ./csv --module_root_dir ./path_module --module_name paths.py
     """
     try:
         parser = argparse.ArgumentParser(
             description="Generate a Python file with paths for various project directories and files."
+        )
+        parser.add_argument(
+            "--path_archives_dir_name",
+            default="path_archives",
+            help="Name of the directory containing the CSV file",
         )
         parser.add_argument(
             "--csv_name",
@@ -218,44 +222,40 @@ def generate_paths_entry():
             help="Name of the CSV file containing paths",
         )
         parser.add_argument(
-            "--csv_dir_name",
-            default="path_archives",
-            help="Name of the directory containing the CSV file",
-        )
-        parser.add_argument(
-            "--csv_root_dir",
-            help="Root directory where the CSV file is located",
-            default=None,
-        )
-        parser.add_argument(
             "--module_name",
             default="path_archives.py",
             help="Name of the output Python file",
         )
         parser.add_argument(
-            "--module_dir_name",
-            default="path_module",
-            help="Name of the directory to save the module file",
-        )
-        parser.add_argument(
-            "--module_root_dir",
-            help="Root directory where the output Python file will be saved",
+            "--config_root_dir",
             default=None,
+            help="Root directory where the config file is located",
         )
 
         args = parser.parse_args()
+        if args.config_root_dir is not None:
+            config = Config(Path(args.config_root_dir))
+        else:
+            config = Config()
+
+        project_root_str = config.get("project_root")
+        if project_root_str is None or not isinstance(project_root_str, str):
+            raise ValueError(
+                "Project root directory is not set in the config file.\nPlease set it using the pcsetpjroot command."
+            )
 
         generate_paths(
-            csv_name=args.csv_name,
-            module_name=args.module_name,
-            csv_dir_name=args.csv_dir_name,
-            module_dir_name=args.module_dir_name,
-            csv_root_dir=args.csv_root_dir,
-            module_root_dir=args.module_root_dir,
+            project_root_str=project_root_str,
+            _paths_archives_dir_name=args.path_archives_dir_name,
+            _csv_name=args.csv_name,
+            _module_name=args.module_name,
         )
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}", file=sys.stderr)
+        import traceback as tb
+
+        print(tb.format_exc(), file=sys.stderr)
 
 
 def set_project_root_entry():

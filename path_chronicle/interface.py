@@ -1,5 +1,4 @@
 import argparse
-import os
 import sys
 from pathlib import Path
 
@@ -36,11 +35,6 @@ def _common_parser(description: str) -> argparse.ArgumentParser:
         "--csv_name", default="paths.csv", help="Name of the CSV file for storing paths"
     )
     parser.add_argument(
-        "--csv_root_dir",
-        help="Root directory where the CSV file will be stored",
-        default=None,
-    )
-    parser.add_argument(
         "--csv_dir_name",
         default="csv",
         help="Name of the directory containing the CSV file",
@@ -71,10 +65,15 @@ def _create_fso_expansion(args: argparse.Namespace) -> FsoExpansion:
     else:
         config = Config()
 
+    project_root_str = config.get("project_root")
+    if project_root_str is None or not isinstance(project_root_str, str):
+        raise ValueError(
+            "Project root directory is not set in the config file.\nPlease set it using the pcsetpjroot command."
+        )
+
     return FsoExpansion(
-        config=config,
+        project_root_str=project_root_str,
         csv_name=args.csv_name,
-        csv_root_dir=args.csv_root_dir,
         csv_dir_name=args.csv_dir_name,
     )
 
@@ -134,11 +133,6 @@ def list_paths_entry():
             help="Name of the CSV file for storing paths",
         )
         parser.add_argument(
-            "--csv_root_dir",
-            help="Root directory where the CSV file is stored",
-            default=None,
-        )
-        parser.add_argument(
             "--csv_dir_name",
             default="csv",
             help="Name of the directory containing the CSV file",
@@ -179,11 +173,6 @@ def remove_path_and_from_csv_entry():
             "--csv_name",
             default="paths.csv",
             help="Name of the CSV file for storing paths",
-        )
-        parser.add_argument(
-            "--csv_root_dir",
-            help="Root directory where the CSV file is stored",
-            default=None,
         )
         parser.add_argument(
             "--csv_dir_name",
@@ -339,11 +328,6 @@ def edit_csv_to_remove_path_entry():
             "--csv_name",
             default="paths.csv",
             help="Name of the CSV file for storing paths",
-        )
-        parser.add_argument(
-            "--csv_root_dir",
-            help="Root directory where the CSV file is stored",
-            default=None,
         )
         parser.add_argument(
             "--csv_dir_name",

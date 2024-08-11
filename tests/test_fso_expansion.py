@@ -14,7 +14,7 @@ def create_fso_expansion(csv_name: str, setup_env: Path) -> FsoExpansion:
     return FsoExpansion(
         project_root_str=str(setup_env),
         _csv_name=csv_name,
-        _csv_dir_name="csv",
+        _csv_dir_name="path_archives",
     )
 
 

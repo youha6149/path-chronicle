@@ -73,8 +73,8 @@ def _create_fso_expansion(args: argparse.Namespace) -> FsoExpansion:
 
     return FsoExpansion(
         project_root_str=project_root_str,
-        csv_name=args.csv_name,
-        csv_dir_name=args.csv_dir_name,
+        _csv_name=args.csv_name,
+        _csv_dir_name=args.csv_dir_name,
     )
 
 

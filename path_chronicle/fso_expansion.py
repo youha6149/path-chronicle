@@ -24,8 +24,8 @@ class FsoExpansion:
     def __init__(
         self,
         project_root_str: str,
-        csv_name: str = "paths.csv",
-        csv_dir_name: str = "path_archives",
+        _csv_name: str = "paths.csv",
+        _csv_dir_name: str = "path_archives",
     ):
         """
         Initializes the FsoExpansion object.
@@ -43,9 +43,9 @@ class FsoExpansion:
         if not self.package_root_dir:
             raise FileNotFoundError("Package root directory not found.")
 
-        self.csv_dir = self.project_root_abs_path / csv_dir_name
+        self.csv_dir = self.project_root_abs_path / _csv_dir_name
         self.csv_dir.mkdir(parents=True, exist_ok=True)
-        self.csv_file = self.csv_dir / csv_name
+        self.csv_file = self.csv_dir / _csv_name
         self.paths = self._load_paths()
 
     def _load_paths(self) -> list[PathEntry]:

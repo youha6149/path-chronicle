@@ -18,7 +18,7 @@ def generate_paths(
     Args:
         project_root_str (str): The path to the project root directory.
         _paths_archives_dir_name (str): The name of the directory containing the CSV file.
-        _csv_dir_name (str): The name of the directory containing the CSV file.
+        _csv_name (str): The name of the CSV file containing the paths.
         _module_name (str): The name of the generated Python module.
 
     Raises:

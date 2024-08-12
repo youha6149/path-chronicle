@@ -140,6 +140,11 @@ class FsoExpansion:
 
         Returns:
             Path | None: The created path. None if an error occurs.
+
+        Raises:
+            ValidationError: If the path is invalid.
+            FileExistsError: If the path already exists.
+            ValueError: If the path already exists in the CSV file.
         """
         try:
 
@@ -161,6 +166,12 @@ class FsoExpansion:
                 description=description,
             )
 
+            if any(p.path == str(new_path) for p in self.paths) or create_path.exists():
+                print(f"The path {new_path} already exists in the CSV file.")
+                raise FileExistsError(
+                    f"The path {new_path} already exists in the CSV file."
+                )
+
             create_function(create_path)
             print(f"Path created at {create_path}")
 
@@ -173,11 +184,19 @@ class FsoExpansion:
 
         except ValidationError as e:
             print(f"Error creating path entry: {e}", file=sys.stderr)
-            return None
+            raise e
+
+        except FileExistsError as e:
+            print(f"Error creating path entry: {e}", file=sys.stderr)
+            raise e
+
+        except ValueError as e:
+            print(f"Error creating path entry: {e}", file=sys.stderr)
+            raise e
 
         except Exception as e:
             print(f"Error creating path: {e}", file=sys.stderr)
-            return None
+            raise e
 
     def remove_path_and_from_csv(
         self,

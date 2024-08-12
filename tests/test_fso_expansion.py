@@ -1,4 +1,5 @@
 import csv
+import pdb
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
@@ -522,3 +523,27 @@ def test_edit_csv_to_remove_path(setup_csv_1_data: Path, setup_env: Path):
         reader = csv.DictReader(file)
         rows = list(reader)
         assert len(rows) == 0, "CSV should be empty after removing the path."
+
+
+def test_create_existing_path_raises_error(
+    setup_csv_header_only: Path, setup_env: Path
+) -> None:
+    """
+    Test that creating an existing path raises a ValueError.
+
+    Args:
+        setup_csv_1_data (Path): The path to the temporary CSV file with one path.
+        setup_env (Path): The temporary environment directory.
+
+    Asserts:
+        A ValueError should be raised when attempting to create a path that already exists.
+    """
+
+    pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
+    pm.create_dir_and_save_csv("exists_dir", "Existing directory")
+
+    with pytest.raises(
+        FileExistsError,
+        match=f"The path {str(setup_env / "exists_dir")} already exists in the CSV file.",
+    ):
+        pm.create_dir_and_save_csv("exists_dir", "Duplicate directory")

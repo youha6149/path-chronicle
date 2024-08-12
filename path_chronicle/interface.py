@@ -154,13 +154,13 @@ def list_paths_entry():
 
 def remove_path_and_from_csv_entry():
     """
-    Remove a path based on ID, name, or path.
-    and also removes it from the CSV file.
+    Remove a path based on ID, name, or path, and also remove it from the CSV file.
 
     Example usage:
         poetry run pcrmpath --id 1
         poetry run pcrmpath --name example_name
         poetry run pcrmpath --path /example/path/to/delete
+        poetry run pcrmpath --id 1 --force-remove
     """
     try:
         parser = argparse.ArgumentParser(
@@ -182,7 +182,12 @@ def remove_path_and_from_csv_entry():
         parser.add_argument(
             "--config_root_dir",
             default=None,
-            help="Name of the directory containing the CSV file",
+            help="Root directory for the configuration",
+        )
+        parser.add_argument(
+            "--force-remove",
+            action="store_true",
+            help="Force removal of directories even if they contain files",
         )
         args = parser.parse_args()
 
@@ -191,7 +196,9 @@ def remove_path_and_from_csv_entry():
             return
 
         pm = _create_fso_expansion(args)
-        pm.remove_path_and_from_csv(id=args.id, name=args.name, path=args.path)
+        pm.remove_path_and_from_csv(
+            id=args.id, name=args.name, path=args.path, force_remove=args.force_remove
+        )
 
     except Exception as e:
         print(

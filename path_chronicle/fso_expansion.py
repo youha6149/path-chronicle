@@ -203,6 +203,7 @@ class FsoExpansion:
         id: int | None = None,
         name: str | None = None,
         path: str | None = None,
+        force_remove: bool = False,
     ) -> None:
         """
         Removes a path based on the specified ID, name, or path,
@@ -212,6 +213,8 @@ class FsoExpansion:
             id (int | None): The ID of the path to remove.
             name (str | None): The name of the path to remove.
             path (str | None): The string representation of the path to remove.
+            force_remove (bool): Whether to forcefully remove non-empty directories.
+                                 Default is False.
         """
         try:
             if not self.paths:
@@ -226,7 +229,7 @@ class FsoExpansion:
                     target_path = target_path.relative_to(self.project_root_abs_path)
                     target_path = self.project_root_abs_path / target_path
 
-                self._delete_path(target_path)
+                self._delete_path(target_path, force_remove)
             else:
                 print("No valid identifier provided to delete path.")
 
@@ -283,16 +286,27 @@ class FsoExpansion:
 
         return target_path
 
-    def _delete_path(self, target_path: Path) -> None:
+    def _delete_path(self, target_path: Path, force_remove: bool) -> None:
         """
         Deletes the target path and updates the CSV file.
 
         Args:
             target_path (Path): The path to delete.
+            force_remove (bool): Whether to forcefully remove non-empty directories.
         """
         try:
-
             if target_path.exists():
+                if (
+                    target_path.is_dir()
+                    and any(target_path.iterdir())
+                    and not force_remove
+                ):
+                    print(
+                        f"Directory {target_path} is not empty."
+                        "Use force_remove=True to delete."
+                    )
+                    return
+
                 self.paths = [
                     p
                     for p in self.paths

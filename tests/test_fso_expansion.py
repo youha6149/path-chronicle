@@ -307,19 +307,26 @@ def test_list_paths_with_data(
     ), f"Output should match expected table format:\n{output}"
 
 
+@pytest.mark.parametrize("force_remove, should_exist", [(False, True), (True, False)])
 def test_remove_dir_and_from_csv_with_subfiles(
-    setup_csv_header_only: Path, setup_env: Path
+    setup_csv_header_only: Path, setup_env: Path, force_remove: bool, should_exist: bool
 ) -> None:
     """
-    Test that FsoExpansion can remove a directory and its subfiles.
+    Test that FsoExpansion can remove a directory and
+    its subfiles when force_remove is True,
+    and does not remove when force_remove is False.
 
     Args:
         setup_csv_header_only (Path): The path to the header only temporary CSV file.
         setup_env (Path): The temporary environment directory.
+        force_remove (bool): Whether to forcefully remove the directory and
+                             its subfiles.
+        should_exist (bool): Expected existence of the directory and
+                             subfile after removal attempt.
 
     Asserts:
-        The directory and its subfiles should be removed,
-        and the paths list should be empty.
+        The directory and its subfiles should be removed when force_remove=True,
+        and not removed when force_remove=False.
     """
     test_dir = setup_env / "test_dir"
     test_dir.mkdir(parents=True, exist_ok=True)
@@ -332,18 +339,36 @@ def test_remove_dir_and_from_csv_with_subfiles(
         writer.writerow(["2", "sub_file", str(sub_file), "sub file"])
 
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
-    pm.remove_path_and_from_csv(path=str(test_dir))
+    pm.remove_path_and_from_csv(path=str(test_dir), force_remove=force_remove)
 
-    assert (
-        len(pm.paths) == 0
-    ), "Paths list should be empty after removing the directory with subfiles."
+    e_txt = f"Dir exist should be {should_exist} when force_remove={force_remove}."
+    assert test_dir.exists() == should_exist, e_txt
+    e_txt = f"Sub exist should be {should_exist} when force_remove={force_remove}."
+    assert sub_file.exists() == should_exist, e_txt
 
-    with open(pm.csv_file, mode="r") as file:
-        reader = csv.DictReader(file)
-        rows = list(reader)
+    if force_remove:
+        common_txt = "directory with subfiles should be removed when force_remove=True."
         assert (
-            len(rows) == 0
-        ), "CSV should be empty after removing the directory with subfiles."
+            len(pm.paths) == 0
+        ), f"Paths list should be empty after removing the {common_txt}."
+
+        with open(pm.csv_file, mode="r") as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+            assert (
+                len(rows) == 0
+            ), "CSV should be empty after removing the {common_txt}."
+    else:
+        assert (
+            len(pm.paths) == 2
+        ), "Paths list should not be empty when force_remove=False."
+
+        with open(pm.csv_file, mode="r") as file:
+            reader = csv.DictReader(file)
+            rows = list(reader)
+            assert (
+                len(rows) == 2
+            ), "CSV should not be empty when force_remove=False."
 
 
 @pytest.mark.parametrize(
@@ -536,7 +561,8 @@ def test_create_existing_path_raises_error(
         setup_env (Path): The temporary environment directory.
 
     Asserts:
-        A ValueError should be raised when attempting to create a path that already exists.
+        A ValueError should be raised when attempting to create
+        a path that already exists.
     """
 
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)

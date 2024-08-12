@@ -142,33 +142,36 @@ class FsoExpansion:
             ValueError: If the path already exists in the CSV file.
         """
         try:
+            current_working_dir = Path.cwd()
 
-            # memo: Regardless of whether it is a relative or absolute path,
-            # it is converted to an absolute path from
-            # the project root and then converted to a path.
+            # memo: When saving to csv, use the path from the root of the project,
+            # and when creating it, change it to an absolute path.
             new_path = path
             if new_path.is_absolute():
                 if not new_path.is_relative_to(self.project_root_abs_path):
                     raise ValueError("The provided path is outside the project root.")
-            else:
-                new_path = self.project_root_abs_path / new_path
 
-            create_path = new_path.resolve()
+            else:
+                new_path = (current_working_dir / path).resolve()
+                if not new_path.is_relative_to(self.project_root_abs_path):
+                    raise ValueError("The provided path is outside the project root.")
+
+            save_path = new_path.relative_to(self.project_root_abs_path)
             path_entry = PathEntry(
                 id=max([p.id for p in self.paths], default=0) + 1,
-                name=create_path.name,
-                path=str(new_path),
+                name=new_path.name,
+                path=str(save_path),
                 description=description,
             )
 
-            if any(p.path == str(new_path) for p in self.paths) or create_path.exists():
+            if any(p.path == str(new_path) for p in self.paths) or new_path.exists():
                 print(f"The path {new_path} already exists in the CSV file.")
                 raise FileExistsError(
                     f"The path {new_path} already exists in the CSV file."
                 )
 
-            create_function(create_path)
-            print(f"Path created at {create_path}")
+            create_function(new_path)
+            print(f"Path created at {new_path}")
 
             if is_save_to_csv:
                 self.paths.append(path_entry)

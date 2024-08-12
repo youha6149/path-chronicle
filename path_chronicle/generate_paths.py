@@ -4,6 +4,7 @@ import pandas as pd
 from pydantic import ValidationError
 
 from path_chronicle.schema import PathEntry, check_header, normalize_name
+from path_chronicle.utils import get_package_root
 
 
 def generate_paths(
@@ -29,8 +30,15 @@ def generate_paths(
     project_root = Path(project_root_str)
     paths_dir = project_root / _paths_archives_dir_name
     csv_path = paths_dir / _csv_name
-    module_path = paths_dir / _module_name
-    init_file_path = paths_dir / "__init__.py"
+
+    package_root = get_package_root()
+    if not package_root:
+        raise ValueError("Package root not found.")
+    module_dir = package_root / "path_archives"
+    module_dir.mkdir(exist_ok=True)
+    module_path = module_dir / _module_name
+    init_file_path = module_dir / "__init__.py"
+    py_typed_path = module_dir / "py.typed"
 
     if not csv_path.exists() or csv_path.stat().st_size == 0:
         raise ValueError(f"CSV file does not exist or is empty: {csv_path}")
@@ -106,3 +114,5 @@ def generate_paths(
 
     with open(init_file_path, mode="w") as init_file:
         init_file.writelines(init_lines)
+
+    py_typed_path.touch()

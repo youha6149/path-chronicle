@@ -185,7 +185,8 @@ def remove_path_and_from_csv_entry():
             help="Root directory for the configuration",
         )
         parser.add_argument(
-            "--force-remove",
+            "-f",
+            "--force_remove",
             action="store_true",
             help="Force removal of directories even if they contain files",
         )

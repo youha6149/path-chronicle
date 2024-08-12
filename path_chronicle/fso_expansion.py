@@ -297,8 +297,8 @@ class FsoExpansion:
                     and not force_remove
                 ):
                     print(
-                        f"Directory {target_path} is not empty."
-                        "Use force_remove=True to delete."
+                        f"Directory {target_path} is not empty. "
+                        "Use `-f` or `--force_remove` to delete."
                     )
                     return
 

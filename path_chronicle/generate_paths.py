@@ -72,7 +72,7 @@ def generate_paths(
     ]
 
     for name, path in paths.items():
-        lines.append(f"    {normalize_name(name)} = Path('{path}')\n")
+        lines.append(f"    {normalize_name(name)} = Path('{project_root / path}')\n")
     lines.append("\n    @staticmethod\n")
     lines.append("    def get_path(name: str) -> Path:\n")
     lines.append('        """\n')
@@ -80,7 +80,7 @@ def generate_paths(
     lines.append("\n")
     lines.append("        Available paths:\n")
     for name, path in paths.items():
-        lines.append(f"        - {normalize_name(name)}: {path}\n")
+        lines.append(f"        - {normalize_name(name)}: {project_root / path}\n")
     lines.append('        """\n')
     lines.append('        return getattr(PathArchives, name, None) or Path("")\n')
 

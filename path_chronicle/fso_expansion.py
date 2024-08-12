@@ -282,6 +282,10 @@ class FsoExpansion:
         if target_path_str is not None:
             target_path = Path(target_path_str)
 
+            # パスがプロジェクトルートからの相対パスか確認し、絶対パスに変換する
+            if not target_path.is_absolute():
+                target_path = self.project_root_abs_path / target_path
+
         return target_path
 
     def _delete_path(self, target_path: Path, force_remove: bool) -> None:

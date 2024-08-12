@@ -68,7 +68,7 @@ def _create_fso_expansion(args: argparse.Namespace) -> FsoExpansion:
     project_root_str = config.get("project_root")
     if project_root_str is None or not isinstance(project_root_str, str):
         raise ValueError(
-            "Project root directory is not set in the config file.\nPlease set it using the pcsetpjroot command."
+            "Project root directory is not set in the config file.\nPlease set it using `pcsetpjroot <your project root path>` command.",
         )
 
     return FsoExpansion(
@@ -249,7 +249,7 @@ def generate_paths_entry():
         project_root_str = config.get("project_root")
         if project_root_str is None or not isinstance(project_root_str, str):
             raise ValueError(
-                "Project root directory is not set in the config file.\nPlease set it using the pcsetpjroot command."
+                "Project root directory is not set in the config file.\nPlease set it using `pcsetpjroot <your project root path>` command.",
             )
 
         generate_paths(
@@ -261,9 +261,6 @@ def generate_paths_entry():
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}", file=sys.stderr)
-        import traceback as tb
-
-        print(tb.format_exc(), file=sys.stderr)
 
 
 def set_project_root_entry():

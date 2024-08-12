@@ -7,7 +7,6 @@ import pandas as pd
 from pydantic import ValidationError
 
 from path_chronicle.schema import PathEntry, check_header
-from path_chronicle.utils import get_package_root
 
 
 class FsoExpansion:
@@ -38,10 +37,6 @@ class FsoExpansion:
 
         self.project_root_str = project_root_str
         self.project_root_abs_path = Path(self.project_root_str)
-
-        self.package_root_dir = get_package_root()
-        if not self.package_root_dir:
-            raise FileNotFoundError("Package root directory not found.")
 
         self.csv_dir = self.project_root_abs_path / _csv_dir_name
         self.csv_dir.mkdir(parents=True, exist_ok=True)

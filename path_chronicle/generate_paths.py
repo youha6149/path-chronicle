@@ -17,12 +17,14 @@ def generate_paths(
 
     Args:
         project_root_str (str): The path to the project root directory.
-        _paths_archives_dir_name (str): The name of the directory containing the CSV file.
+        _paths_archives_dir_name (str): The name of the directory
+                                        containing the CSV file.
         _csv_name (str): The name of the CSV file containing the paths.
         _module_name (str): The name of the generated Python module.
 
     Raises:
-        ValueError: If the CSV file does not exist, is empty, has an invalid header, or has invalid data.
+        ValueError: If the CSV file does not exist, is empty, has an invalid header,
+        or has invalid data.
     """
     project_root = Path(project_root_str)
     paths_dir = project_root / _paths_archives_dir_name

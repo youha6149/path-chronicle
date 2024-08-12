@@ -1,5 +1,4 @@
 import csv
-import pdb
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
@@ -366,9 +365,7 @@ def test_remove_dir_and_from_csv_with_subfiles(
         with open(pm.csv_file, mode="r") as file:
             reader = csv.DictReader(file)
             rows = list(reader)
-            assert (
-                len(rows) == 2
-            ), "CSV should not be empty when force_remove=False."
+            assert len(rows) == 2, "CSV should not be empty when force_remove=False."
 
 
 @pytest.mark.parametrize(
@@ -568,8 +565,9 @@ def test_create_existing_path_raises_error(
     pm = create_fso_expansion(setup_csv_header_only.name, setup_env)
     pm.create_dir_and_save_csv("exists_dir", "Existing directory")
 
+    exists_dir = str(setup_env / "exists_dir")
     with pytest.raises(
         FileExistsError,
-        match=f"The path {str(setup_env / "exists_dir")} already exists in the CSV file.",
+        match=f"The path {exists_dir} already exists in the CSV file.",
     ):
         pm.create_dir_and_save_csv("exists_dir", "Duplicate directory")

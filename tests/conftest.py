@@ -36,7 +36,7 @@ def setup_empty_csv(setup_env: Path) -> Path:
     Returns:
         The path to the created empty CSV file.
     """
-    csv_dir = setup_env / "csv"
+    csv_dir = setup_env / "path_archives"
     csv_dir.mkdir(parents=True, exist_ok=True)
     csv_file = csv_dir / "test_paths.csv"
     csv_file.touch()

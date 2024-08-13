@@ -6,9 +6,7 @@ from pathlib import Path
 import pandas as pd
 from pydantic import ValidationError
 
-from path_chronicle.config import Config
 from path_chronicle.schema import PathEntry, check_header
-from path_chronicle.utils import get_package_root
 
 
 class FsoExpansion:
@@ -24,33 +22,25 @@ class FsoExpansion:
 
     def __init__(
         self,
-        config: Config,
-        csv_name: str = "paths.csv",
-        csv_dir_name: str = "csv",
-        csv_root_dir: str | None = None,
+        project_root_str: str,
+        _csv_name: str = "paths.csv",
+        _csv_dir_name: str = "path_archives",
     ):
         """
-        Constructor for the FsoExpansion class.
+        Initializes the FsoExpansion object.
 
         Args:
+            project_root_str (str): The project root directory path.
             csv_name (str): The name of the CSV file. Default is "paths.csv".
-            csv_dir_name (str): The name of the directory where the CSV file is stored.
-                                Default is "csv".
-            csv_root_dir (str | None): The root directory path for the CSV file.
-                                       Default is None.
+            csv_dir_name (str): The name of the directory where CSV files are stored.
         """
-        self.config = config
-        self.package_root_dir = get_package_root()
-        if not self.package_root_dir:
-            raise FileNotFoundError("Package root directory not found.")
 
-        self.csv_dir = (
-            Path(csv_root_dir) / csv_dir_name
-            if csv_root_dir
-            else self.package_root_dir / csv_dir_name
-        )
+        self.project_root_str = project_root_str
+        self.project_root_abs_path = Path(self.project_root_str)
+
+        self.csv_dir = self.project_root_abs_path / _csv_dir_name
         self.csv_dir.mkdir(parents=True, exist_ok=True)
-        self.csv_file = self.csv_dir / csv_name
+        self.csv_file = self.csv_dir / _csv_name
         self.paths = self._load_paths()
 
     def _load_paths(self) -> list[PathEntry]:
@@ -145,32 +135,43 @@ class FsoExpansion:
 
         Returns:
             Path | None: The created path. None if an error occurs.
+
+        Raises:
+            ValidationError: If the path is invalid.
+            FileExistsError: If the path already exists.
+            ValueError: If the path already exists in the CSV file.
         """
         try:
+            current_working_dir = Path.cwd()
 
-            new_path = Path(path).resolve()
-            name = new_path.name
-            project_root = self.config.get("project_root")
+            # memo: When saving to csv, use the path from the root of the project,
+            # and when creating it, change it to an absolute path.
+            new_path = path
+            if new_path.is_absolute():
+                if not new_path.is_relative_to(self.project_root_abs_path):
+                    raise ValueError("The provided path is outside the project root.")
 
-            is_relative = False
-            if project_root is not None and isinstance(project_root, str):
-                print(f"Project root directory: {Path(project_root)}")
-                new_path = new_path.relative_to(Path(project_root))
-                create_path = Path(project_root) / new_path
-                is_relative = True
+            else:
+                new_path = (current_working_dir / path).resolve()
+                if not new_path.is_relative_to(self.project_root_abs_path):
+                    raise ValueError("The provided path is outside the project root.")
 
-            if not is_relative:
-                create_path = new_path
-
+            save_path = new_path.relative_to(self.project_root_abs_path)
             path_entry = PathEntry(
                 id=max([p.id for p in self.paths], default=0) + 1,
-                name=name,
-                path=str(new_path),
+                name=new_path.name,
+                path=str(save_path),
                 description=description,
             )
 
-            create_function(create_path)
-            print(f"Path created at {create_path}")
+            if any(p.path == str(new_path) for p in self.paths) or new_path.exists():
+                print(f"The path {new_path} already exists in the CSV file.")
+                raise FileExistsError(
+                    f"The path {new_path} already exists in the CSV file."
+                )
+
+            create_function(new_path)
+            print(f"Path created at {new_path}")
 
             if is_save_to_csv:
                 self.paths.append(path_entry)
@@ -181,14 +182,26 @@ class FsoExpansion:
 
         except ValidationError as e:
             print(f"Error creating path entry: {e}", file=sys.stderr)
-            return None
+            raise e
+
+        except FileExistsError as e:
+            print(f"Error creating path entry: {e}", file=sys.stderr)
+            raise e
+
+        except ValueError as e:
+            print(f"Error creating path entry: {e}", file=sys.stderr)
+            raise e
 
         except Exception as e:
             print(f"Error creating path: {e}", file=sys.stderr)
-            return None
+            raise e
 
     def remove_path_and_from_csv(
-        self, id: int | None = None, name: str | None = None, path: str | None = None
+        self,
+        id: int | None = None,
+        name: str | None = None,
+        path: str | None = None,
+        force_remove: bool = False,
     ) -> None:
         """
         Removes a path based on the specified ID, name, or path,
@@ -198,6 +211,8 @@ class FsoExpansion:
             id (int | None): The ID of the path to remove.
             name (str | None): The name of the path to remove.
             path (str | None): The string representation of the path to remove.
+            force_remove (bool): Whether to forcefully remove non-empty directories.
+                                 Default is False.
         """
         try:
             if not self.paths:
@@ -208,15 +223,11 @@ class FsoExpansion:
             target_path = self._find_target_path(id, name, path)
 
             if target_path:
-                project_root = self.config.get("project_root")
-                if project_root is not None and isinstance(project_root, str):
-                    project_root_abs_path = Path(project_root)
+                if self.project_root_abs_path in target_path.parents:
+                    target_path = target_path.relative_to(self.project_root_abs_path)
+                    target_path = self.project_root_abs_path / target_path
 
-                    if project_root_abs_path in target_path.parents:
-                        target_path = target_path.relative_to(project_root_abs_path)
-                        target_path = project_root_abs_path / target_path
-
-                self._delete_path(target_path)
+                self._delete_path(target_path, force_remove)
             else:
                 print("No valid identifier provided to delete path.")
 
@@ -224,7 +235,10 @@ class FsoExpansion:
             print(f"Error deleting path: {e}", file=sys.stderr)
 
     def _find_target_path(
-        self, id: int | None = None, name: str | None = None, path: str | None = None
+        self,
+        id: int | None = None,
+        name: str | None = None,
+        path: str | None = None,
     ) -> Path | None:
         """
         Finds the target path based on the specified ID, name, or path.
@@ -268,18 +282,33 @@ class FsoExpansion:
         if target_path_str is not None:
             target_path = Path(target_path_str)
 
+            # パスがプロジェクトルートからの相対パスか確認し、絶対パスに変換する
+            if not target_path.is_absolute():
+                target_path = self.project_root_abs_path / target_path
+
         return target_path
 
-    def _delete_path(self, target_path: Path) -> None:
+    def _delete_path(self, target_path: Path, force_remove: bool) -> None:
         """
         Deletes the target path and updates the CSV file.
 
         Args:
             target_path (Path): The path to delete.
+            force_remove (bool): Whether to forcefully remove non-empty directories.
         """
         try:
-
             if target_path.exists():
+                if (
+                    target_path.is_dir()
+                    and any(target_path.iterdir())
+                    and not force_remove
+                ):
+                    print(
+                        f"Directory {target_path} is not empty. "
+                        "Use `-f` or `--force_remove` to delete."
+                    )
+                    return
+
                 self.paths = [
                     p
                     for p in self.paths

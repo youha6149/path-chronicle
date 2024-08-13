@@ -35,6 +35,7 @@ def test_generate_paths_nonexists_csv(setup_env):
             _paths_archives_dir_name="path_archives",
             _csv_name="nonexists.csv",
             _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -63,6 +64,7 @@ def test_generate_paths_empty_csv(setup_env):
             _paths_archives_dir_name="path_archives",
             _csv_name="empty.csv",
             _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -89,6 +91,7 @@ def test_generate_paths_invalid_header(setup_env, setup_empty_csv, setup_module_
             _paths_archives_dir_name="path_archives",
             _csv_name=setup_empty_csv.name,
             _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -117,6 +120,7 @@ def test_generate_paths_validation_error(
             _paths_archives_dir_name="path_archives",
             _csv_name=setup_csv_header_only.name,
             _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -140,6 +144,7 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
             _paths_archives_dir_name="path_archives",
             _csv_name=setup_csv_header_only.name,
             _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -221,12 +226,12 @@ def test_generate_paths_with_variable_data(
         the expected content for a CSV with data.
     """
 
-    print(f"csv path in test: {setup_csv_with_variable_number_of_data.resolve()}")
     generate_paths(
         project_root_str=str(setup_env),
         _paths_archives_dir_name="path_archives",
         _csv_name=setup_csv_with_variable_number_of_data.name,
         _module_name="path_archives.py",
+        _module_dir_path=str(setup_env),
     )
 
     with open(setup_module_file, mode="r") as file:

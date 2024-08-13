@@ -12,6 +12,7 @@ def generate_paths(
     _paths_archives_dir_name: str = "path_archives",
     _csv_name: str = "paths.csv",
     _module_name: str = "path_archives.py",
+    _module_dir_path: str | None = None,
 ):
     """
     Generates a Python module with paths for various project directories and files.
@@ -22,6 +23,7 @@ def generate_paths(
                                         containing the CSV file.
         _csv_name (str): The name of the CSV file containing the paths.
         _module_name (str): The name of the generated Python module.
+        _module_dir_path (str | None): The path to the directory containing the module.
 
     Raises:
         ValueError: If the CSV file does not exist, is empty, has an invalid header,
@@ -31,9 +33,14 @@ def generate_paths(
     paths_dir = project_root / _paths_archives_dir_name
     csv_path = paths_dir / _csv_name
 
-    package_root = get_package_root()
+    if _module_dir_path is None:
+        package_root = get_package_root()
+    else:
+        package_root = Path(_module_dir_path)
+
     if not package_root:
         raise ValueError("Package root not found.")
+
     module_dir = package_root / "path_archives"
     module_dir.mkdir(exist_ok=True)
     module_path = module_dir / _module_name

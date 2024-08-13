@@ -230,7 +230,8 @@ def test_generate_paths_entry(setup_csv_header_only, setup_env):
         f"--config_root_dir {setup_env} "
         f"--csv_name {setup_csv_header_only.name} "
         f"--path_archives_dir_name path_archives "
-        f"--module_name {module_name}"
+        f"--module_name {module_name} "
+        f"--module_dir_path {setup_env}"
     )
     run_command(command, cwd=PROJECT_ROOT)
 

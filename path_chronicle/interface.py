@@ -235,6 +235,11 @@ def generate_paths_entry():
             help="Name of the output Python file",
         )
         parser.add_argument(
+            "--module_dir_path",
+            default=None,
+            help="Root directory where the config file is located",
+        )
+        parser.add_argument(
             "--config_root_dir",
             default=None,
             help="Root directory where the config file is located",
@@ -257,6 +262,7 @@ def generate_paths_entry():
             _paths_archives_dir_name=args.path_archives_dir_name,
             _csv_name=args.csv_name,
             _module_name=args.module_name,
+            _module_dir_path=args.module_dir_path,
         )
 
     except Exception as e:

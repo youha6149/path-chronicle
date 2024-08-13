@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -79,7 +80,10 @@ def generate_paths(
     ]
 
     for name, path in paths.items():
-        lines.append(f"    {normalize_name(name)} = Path('{project_root / path}')\n")
+        path_str_cls_member = str(project_root / path)
+        if os.name == "nt":
+            path_str_cls_member = path_str_cls_member.replace("\\", "/")
+        lines.append(f"    {normalize_name(name)} = Path('{path_str_cls_member}')\n")
     lines.append("\n    @staticmethod\n")
     lines.append("    def get_path(name: str) -> Path:\n")
     lines.append('        """\n')
@@ -87,7 +91,10 @@ def generate_paths(
     lines.append("\n")
     lines.append("        Available paths:\n")
     for name, path in paths.items():
-        lines.append(f"        - {normalize_name(name)}: {project_root / path}\n")
+        path_str_docs = str(project_root / path)
+        if os.name == "nt":
+            path_str_docs = path_str_docs.replace("\\", "/")
+        lines.append(f"        - {normalize_name(name)}: {path_str_docs}\n")
     lines.append('        """\n')
     lines.append('        return getattr(PathArchives, name, None) or Path("")\n')
 

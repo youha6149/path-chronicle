@@ -129,7 +129,9 @@ def test_create_dir_and_save_csv(setup_csv_header_only: Path, setup_env: Path) -
     assert (
         pm.paths[-1].name == "test_dir"
     ), "Path name should be saved in the paths list."
-    assert pm.paths[-1].path == str(new_dir), "Path should be saved in the paths list."
+    assert pm.paths[-1].path == str(
+        target_path.name
+    ), "Path should be saved in the paths list."
     assert (
         pm.paths[-1].description == "Test directory description"
     ), "Description should be saved in the paths list."
@@ -138,7 +140,9 @@ def test_create_dir_and_save_csv(setup_csv_header_only: Path, setup_env: Path) -
         reader = csv.DictReader(file)
         rows = list(reader)
         assert rows[0]["name"] == "test_dir", "CSV should contain the directory name."
-        assert rows[0]["path"] == str(new_dir), "CSV should contain the correct path."
+        assert rows[0]["path"] == str(
+            target_path.name
+        ), "CSV should contain the correct path."
         assert (
             rows[0]["description"] == "Test directory description"
         ), "CSV should contain the correct description."
@@ -164,7 +168,9 @@ def test_create_file_and_save_csv(setup_csv_header_only: Path, setup_env: Path) 
     assert (
         pm.paths[-1].name == new_file.name
     ), "Path name should be saved in the paths list."
-    assert pm.paths[-1].path == str(new_file), "Path should be saved in the paths list."
+    assert pm.paths[-1].path == str(
+        target_path.name
+    ), "Path should be saved in the paths list."
     assert (
         pm.paths[-1].description == "Test file description"
     ), "Description should be saved in the paths list."
@@ -173,7 +179,9 @@ def test_create_file_and_save_csv(setup_csv_header_only: Path, setup_env: Path) 
         reader = csv.DictReader(file)
         rows = list(reader)
         assert rows[0]["name"] == new_file.name, "CSV should contain the file name."
-        assert rows[0]["path"] == str(new_file), "CSV should contain the correct path."
+        assert rows[0]["path"] == str(
+            target_path.name
+        ), "CSV should contain the correct path."
         assert (
             rows[0]["description"] == "Test file description"
         ), "CSV should contain the correct description."

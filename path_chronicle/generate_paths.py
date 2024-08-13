@@ -8,34 +8,47 @@ from path_chronicle.utils import get_package_root
 
 
 def generate_paths(
-    csv_name: str = "paths.csv",
-    module_name: str = "path_archives.py",
-    csv_dir_name: str = "csv",
-    module_dir_name: str = "path_module",
-    csv_root_dir: str | None = None,
-    module_root_dir: str | None = None,
+    project_root_str: str,
+    _paths_archives_dir_name: str = "path_archives",
+    _csv_name: str = "paths.csv",
+    _module_name: str = "path_archives.py",
+    _module_dir_path: str | None = None,
 ):
-    package_root_str = get_package_root()
-    if package_root_str is None:
-        raise ValueError("Could not find package root directory.")
+    """
+    Generates a Python module with paths for various project directories and files.
 
-    csv_dir = (
-        Path(csv_root_dir) / csv_dir_name
-        if csv_root_dir is not None
-        else package_root_str / csv_dir_name
-    )
-    csv_path = csv_dir / csv_name
+    Args:
+        project_root_str (str): The path to the project root directory.
+        _paths_archives_dir_name (str): The name of the directory
+                                        containing the CSV file.
+        _csv_name (str): The name of the CSV file containing the paths.
+        _module_name (str): The name of the generated Python module.
+        _module_dir_path (str | None): The path to the directory containing the module.
+
+    Raises:
+        ValueError: If the CSV file does not exist, is empty, has an invalid header,
+        or has invalid data.
+    """
+    project_root = Path(project_root_str)
+    paths_dir = project_root / _paths_archives_dir_name
+    csv_path = paths_dir / _csv_name
+
+    if _module_dir_path is None:
+        package_root = get_package_root()
+    else:
+        package_root = Path(_module_dir_path)
+
+    if not package_root:
+        raise ValueError("Package root not found.")
+
+    module_dir = package_root / "path_archives"
+    module_dir.mkdir(exist_ok=True)
+    module_path = module_dir / _module_name
+    init_file_path = module_dir / "__init__.py"
+    py_typed_path = module_dir / "py.typed"
 
     if not csv_path.exists() or csv_path.stat().st_size == 0:
         raise ValueError(f"CSV file does not exist or is empty: {csv_path}")
-
-    module_dir = (
-        Path(module_root_dir) / module_dir_name
-        if module_root_dir is not None
-        else package_root_str / module_dir_name
-    )
-    module_dir.mkdir(parents=True, exist_ok=True)
-    module_path = module_dir / module_name
 
     df = pd.read_csv(csv_path)
     if not check_header(df.columns.tolist()):
@@ -66,7 +79,7 @@ def generate_paths(
     ]
 
     for name, path in paths.items():
-        lines.append(f"    {normalize_name(name)} = Path('{path}')\n")
+        lines.append(f"    {normalize_name(name)} = Path('{project_root / path}')\n")
     lines.append("\n    @staticmethod\n")
     lines.append("    def get_path(name: str) -> Path:\n")
     lines.append('        """\n')
@@ -74,29 +87,28 @@ def generate_paths(
     lines.append("\n")
     lines.append("        Available paths:\n")
     for name, path in paths.items():
-        lines.append(f"        - {normalize_name(name)}: {path}\n")
+        lines.append(f"        - {normalize_name(name)}: {project_root / path}\n")
     lines.append('        """\n')
     lines.append('        return getattr(PathArchives, name, None) or Path("")\n')
 
     with open(str(module_path), mode="w") as file:
         file.writelines(lines)
 
-    init_file_path = module_dir / "__init__.py"
     init_lines = [
         "import importlib.util\n",
         "import sys\n",
         "from pathlib import Path\n",
         "\n\n",
         "def load_generated_paths_module():\n",
-        f'    module_path = Path(__file__).parent / "{module_name}"\n',
+        f'    module_path = Path(__file__).parent / "{_module_name}"\n',
         "    if not module_path.exists():\n",
         '        raise FileNotFoundError(f"Generated paths module not found: {module_path}")\n',
         "\n",
         "    spec = importlib.util.spec_from_file_location(\n",
-        f'        "path_module.{module_name.replace(".py", "")}", module_path\n',
+        f'        "path_module.{_module_name.replace(".py", "")}", module_path\n',
         "    )\n",
         "    module = importlib.util.module_from_spec(spec)\n",
-        f'    sys.modules["path_module.{module_name.replace(".py", "")}"] = module\n',
+        f'    sys.modules["path_module.{_module_name.replace(".py", "")}"] = module\n',
         "    spec.loader.exec_module(module)\n",
         "    return module\n",
         "\n\n",
@@ -109,3 +121,5 @@ def generate_paths(
 
     with open(init_file_path, mode="w") as init_file:
         init_file.writelines(init_lines)
+
+    py_typed_path.touch()

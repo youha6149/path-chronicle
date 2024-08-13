@@ -8,7 +8,7 @@ from path_chronicle.schema import PathEntry
 
 @pytest.fixture
 def setup_module_file(setup_env):
-    module_dir = setup_env / "path_module"
+    module_dir = setup_env / "path_archives"
     module_dir.mkdir(parents=True, exist_ok=True)
     module_file = module_dir / "path_archives.py"
     return module_file
@@ -25,16 +25,17 @@ def test_generate_paths_nonexists_csv(setup_env):
         ValueError is raised with appropriate message.
     """
 
-    nonexists_csv_path = setup_env / "csv" / "nonexists.csv"
+    nonexists_csv_path = setup_env / "path_archives" / "nonexists.csv"
 
     with pytest.raises(
         ValueError, match=f"CSV file does not exist or is empty: {nonexists_csv_path}"
     ):
         generate_paths(
-            csv_name="nonexists.csv",
-            module_name="paths.py",
-            csv_root_dir=str(setup_env),
-            module_root_dir=str(setup_env),
+            project_root_str=str(setup_env),
+            _paths_archives_dir_name="path_archives",
+            _csv_name="nonexists.csv",
+            _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -49,7 +50,7 @@ def test_generate_paths_empty_csv(setup_env):
         ValueError is raised with appropriate message.
     """
 
-    empty_csv_dir = setup_env / "csv"
+    empty_csv_dir = setup_env / "path_archives"
     empty_csv_dir.mkdir(parents=True, exist_ok=True)
 
     empty_csv_path = empty_csv_dir / "empty.csv"
@@ -59,10 +60,11 @@ def test_generate_paths_empty_csv(setup_env):
         ValueError, match=f"CSV file does not exist or is empty: {empty_csv_path}"
     ):
         generate_paths(
-            csv_name="empty.csv",
-            module_name="paths.py",
-            csv_root_dir=str(setup_env),
-            module_root_dir=str(setup_env),
+            project_root_str=str(setup_env),
+            _paths_archives_dir_name="path_archives",
+            _csv_name="empty.csv",
+            _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -85,10 +87,11 @@ def test_generate_paths_invalid_header(setup_env, setup_empty_csv, setup_module_
         ValueError, match=f"Invalid header in CSV file: {setup_empty_csv}"
     ):
         generate_paths(
-            csv_name=setup_empty_csv.name,
-            module_name=setup_module_file.name,
-            csv_root_dir=str(setup_env),
-            module_root_dir=str(setup_env),
+            project_root_str=str(setup_env),
+            _paths_archives_dir_name="path_archives",
+            _csv_name=setup_empty_csv.name,
+            _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -113,10 +116,11 @@ def test_generate_paths_validation_error(
 
     with pytest.raises(ValueError, match="Validation error for row"):
         generate_paths(
-            csv_name=setup_csv_header_only.name,
-            module_name=setup_module_file.name,
-            csv_root_dir=str(setup_env),
-            module_root_dir=str(setup_env),
+            project_root_str=str(setup_env),
+            _paths_archives_dir_name="path_archives",
+            _csv_name=setup_csv_header_only.name,
+            _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -136,10 +140,11 @@ def test_generate_paths_empty_data(setup_csv_header_only, setup_env, setup_modul
 
     with pytest.raises(ValueError, match=f"Empty CSV file: {setup_csv_header_only}"):
         generate_paths(
-            csv_name=setup_csv_header_only.name,
-            module_name=setup_module_file.name,
-            csv_root_dir=str(setup_env),
-            module_root_dir=str(setup_env),
+            project_root_str=str(setup_env),
+            _paths_archives_dir_name="path_archives",
+            _csv_name=setup_csv_header_only.name,
+            _module_name="path_archives.py",
+            _module_dir_path=str(setup_env),
         )
 
 
@@ -222,10 +227,11 @@ def test_generate_paths_with_variable_data(
     """
 
     generate_paths(
-        csv_name=setup_csv_with_variable_number_of_data.name,
-        module_name=setup_module_file.name,
-        csv_root_dir=str(setup_env),
-        module_root_dir=str(setup_env),
+        project_root_str=str(setup_env),
+        _paths_archives_dir_name="path_archives",
+        _csv_name=setup_csv_with_variable_number_of_data.name,
+        _module_name="path_archives.py",
+        _module_dir_path=str(setup_env),
     )
 
     with open(setup_module_file, mode="r") as file:
